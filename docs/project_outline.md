@@ -1,8 +1,8 @@
-## requirements
+## project requirements
 - threads have different roles
-- scalability (in that scale of difficulty)
-- complex information exchange
-- end state
+- scalability (in terms of difficulty)
+- complex information exchange between threads
+- clearly defined end state
 - in C
 
 ## teaching lessons
@@ -12,26 +12,25 @@
 ## ideas
 - restaurant 
     - cook threads 
+        - chef waits for orders       
+        - can cook so many orders at any given time
     - waiter threads 
+        - wait to seat customers
         - waiter takes order
+        - takes orders to chef
     - customers
-        - wait to seat
-    
-- ships ports 
-    - ship thread
-    - port thread
+        - wait to be seated
 
-## implementation
-- start 
-- simulation
+## general flow
+
 ```
-                                            not ended
-                                    _______________________
-                                   |                       |                ended
-start + simulation ----> execute simulation step --> evaluate end condtion ----> end state
-|            |
-|            |
- ---------> logfile
+                                        if not ended
+                                    -<---------<---------<
+                                   |                       |               ended
+start, simulation ----> execute simulation step --> evaluate end condtion ------> end state
+|            |                     |                       |
+|            |                     |                       |
+ -------------------------------------------------------------->logfile
 ```
 - need a mechanism for debugging and logging errors
     - needed for student debugging
@@ -43,25 +42,18 @@ start + simulation ----> execute simulation step --> evaluate end condtion ---->
 
 ### file structure
 
-- email: prof email
-
 ```
 simulator-app/
-├─ simulator/
-│  ├─ sim/
-│  │  ├─ main.c
-│  │  ├─ contollers.h.c
-│  ├─controllers.c
-│  ├─sim.h
-├─ docs/ 
-├─ .gitignore
+├─ simulator
+│  ├─ sim/  
+│  │  ├─ main.c          // all api defintions, starting and stopping sim
+│  │  ├─ contollers.h  // function declarations for student functions
+│  ├─controllers.c       // student code + init function
+│  ├─sim.h               // api function declarations
+├─ docs/                 // documentation and updates
+├─ .gitignore            
 ├─ README.md
 
-
-- simulator
-    |- main.c           # all api definitions, starting and managing simulator, calls student implemented functions 
-    |- sim.h            # header for student visible api
-    |- controllers.c    # funcs that students write for controllers, init function for students to initialize their datastructures
 ```
 
-- `init` function initializes student memory -- call this function 
+- `init` function initializes allows students to do any setup needed for their data structures
