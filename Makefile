@@ -1,4 +1,3 @@
-# Thanks to Job Vranish (https://spin.atomicobject.com/2016/08/26/makefile-c-projects/)
 TARGET_EXEC := restaurant
 
 BUILD_DIR := ./build
@@ -12,10 +11,6 @@ SRCS := $(shell find $(SRC_DIRS) -name '*.c')
 
 # ./dir/hello.cpp into ./build/./dir/hello.cpp.o
 OBJS := $(SRCS:%=$(BUILD_DIR)/%.o)
-
-# Every folder in ./src will need to be passed to GCC so that it can find header files
-INC_DIRS := $(shell find $(SRC_DIRS) -type d)
-
 
 $(BUILD_DIR)/$(TARGET_EXEC): $(OBJS)
 	$(CC) $(OBJS) -o $@ $(LDFLAGS)
