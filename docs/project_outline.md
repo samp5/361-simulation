@@ -47,7 +47,7 @@ simulator-app/
 ├─ simulator
 │  ├─ sim/  
 │  │  ├─ main.c          // all api defintions, starting and stopping sim
-│  │  ├─ contollers.h  // function declarations for student functions
+│  │  ├─ contollers.h    // function declarations for student functions
 │  ├─controllers.c       // student code + init function
 │  ├─sim.h               // api function declarations
 ├─ docs/                 // documentation and updates
