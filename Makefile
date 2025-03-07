@@ -1,16 +1,23 @@
-TARGET_EXEC := restaurant
-
-BUILD_DIR := ./build
-SRC_DIRS := ./simulator
-
 CC := gcc
 
 CFLAGS = -Wall -Wextra -Wno-unused-parameter -Wno-unused-variable -Wno-unused-result -Wno-unused-but-set-variable -Wno-pointer-arith -Werror -std=c17 -Wpedantic -O0 -g -pthread
 
-SRCS := $(shell find $(SRC_DIRS) -name '*.c')
+TARGET_EXEC := restaurant
+TEST_TARGET := test
 
+BUILD_DIR := ./build
+SRC_DIRS := ./simulator
+SRCS := $(shell find $(SRC_DIRS) -name '*.c')
 # ./dir/hello.cpp into ./build/./dir/hello.cpp.o
 OBJS := $(SRCS:%=$(BUILD_DIR)/%.o)
+
+TEST_SRC_DIRS := ./tests ./simulator/sim/state ./simulator/sim/ds
+TEST_SRC := $(shell find $(TEST_SRC_DIRS) -name '*.c')
+TEST_OBJS := $(TEST_SRC:%=$(BUILD_DIR)/%.o)
+
+
+
+$(TARGET_EXEC): $(BUILD_DIR)/$(TARGET_EXEC)
 
 $(BUILD_DIR)/$(TARGET_EXEC): $(OBJS)
 	$(CC) $(OBJS) -o $@ $(LDFLAGS)
@@ -20,6 +27,13 @@ $(BUILD_DIR)/%.c.o: %.c
 	mkdir -p $(dir $@)
 	$(CC)  $(CFLAGS) -c $< -o $@
 
+$(TEST_TARGET): $(BUILD_DIR)/$(TEST_TARGET)
+
+$(BUILD_DIR)/$(TEST_TARGET): $(TEST_OBJS)
+	$(CC) $(CFLAGS) $^ -o $@ 
+
+run_tests: $(BUILD_DIR)/$(TEST_TARGET)
+	./build/test
 
 .PHONY: clean
 clean:
