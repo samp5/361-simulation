@@ -11,14 +11,19 @@ typedef u_int8_t borsht_type;
 //
 
 /*
+ * Check to see if a customer has arrived at the restaurant
+ */
+int arrive(customer_id);
+
+/*
  * Leave the restaurant
  */
-void leave();
+void leave(customer_id);
 
 /*
  * Eat borsht
  */
-void eat();
+void eat(customer_id);
 
 /////////////////////////////////////////////////////////////////////
 //
