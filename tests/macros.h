@@ -4,6 +4,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+static char buf[1024];
+
 #define RESET   "\x1B[0m"
 #define RED     "\x1B[31m"
 #define GREEN   "\x1B[32m"
@@ -37,4 +39,16 @@
         }                                                      \
     } while (0)
 
+
+#define FASSERT(cond, msg, ...)                                 \
+    do {                                                       \
+        if (!(cond)) {                                         \
+            sprintf(buf, msg, __VA_ARGS__);                     \
+            fprintf(stderr, RED BOLD "  Assertion failed: %s\n" \
+                    "  File: %s, Line: %d\n"                    \
+                    "  Message: %s\n" RESET,                     \
+                    #cond, __FILE__, __LINE__, buf);           \
+            return 1;                                          \
+        }                                                      \
+    } while (0)
 #endif // !MACROS
