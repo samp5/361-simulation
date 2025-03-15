@@ -20,6 +20,11 @@ typedef struct vector {
   size_t elem_size;
 
   /*
+   * Internally used compare function for finding an element
+   */
+  int (*compare)(void*, void*);
+
+  /*
    * Push an element onto the back of the vector
    *
    * param: vec this
@@ -44,6 +49,7 @@ typedef struct vector {
    * length
    *
    * param: vec this
+   *
    * return: number of elements
   */
   int (*len)(struct vector*); 
@@ -82,6 +88,24 @@ typedef struct vector {
    * return: index of item on success, -1 on  failure
   */
   int (*find)(struct vector*, void*);
+
+  /*
+   * Set the compare function to be used when finding an element.
+   *
+   * the function signature of compare should be:
+   *
+   *
+   *  `int f(void* a, void* b);`
+   *
+   *
+   * where `f` returns a number less than, equal to, or greater than zero
+   * when `a` is less than, equal to, or greater than `b`, respectively 
+   *
+   * param: vec this
+   *
+   * param: compare a function as described above
+   */
+  void (*set_comparator)(struct vector*, int (*compare)(void*, void*));
 
 } vector;
 

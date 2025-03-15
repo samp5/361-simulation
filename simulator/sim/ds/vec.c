@@ -73,12 +73,25 @@ int find(vector* vec, void* element){
   if (vec == NULL){
     return -1;
   }
-  for (size_t i = 0; i < vec->size; i++){
-    if (!memcmp(vec->arr + (i * vec->elem_size), element , vec->elem_size)){
-      return i;
+  if (vec->compare != NULL){
+    for (size_t i = 0; i < vec->size; i++){
+      if (vec->compare(vec->arr + (i * vec->elem_size), element) == 0){
+        return i;
+      }
     }
+    return -1;
+  } else {
+    for (size_t i = 0; i < vec->size; i++){
+      if (!memcmp(vec->arr + (i * vec->elem_size), element , vec->elem_size)){
+        return i;
+      }
+    }
+    return -1;
   }
-  return -1;
+}
+
+static void set_comparator(struct vector* v, int (*compare)(void*, void*)){
+  v->compare = compare;
 }
 
 vector* new_vector(size_t with_size) {
@@ -94,6 +107,9 @@ vector* new_vector(size_t with_size) {
   vec->dealloc = deallocate;
   vec->get_at = get_at ;
   vec->find = find;
+  vec->set_comparator = set_comparator;
+
+  vec->compare = NULL;
 
   return vec;
 }

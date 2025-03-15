@@ -8,12 +8,14 @@ static int test_empty();
 static int test_single_int();
 static int test_single_struct();
 static int test_many_int();
+static int test_set_compare();
 
 void vector_test_all(){
   TEST(test_empty);
   TEST(test_single_int);
   TEST(test_many_int);
   TEST(test_single_struct);
+  TEST(test_set_compare);
 }
 
 int test_empty(){
@@ -110,6 +112,33 @@ int test_single_struct(){
   ASSERT(val.x == 1 && val.y == 2, "Incorrect element retrieved");
 
   ASSERT(v->len(v) == 0, "Expected zero size after pop");
+
+  return 0;
+}
+
+int cmp(void*a , void* b){
+  struct point* pa =  (struct point*)a;
+  struct point* pb = (struct point*)b;
+  if (pa->x == pb->x){
+    return 0;
+  } else {
+    return 1;
+  }
+}
+int test_set_compare(){
+  vector* v = new_vector(sizeof(struct point));
+  struct point pt1;
+  pt1.x = 1;
+  pt1.y = 2;
+
+  struct point pt2;
+  pt1.x = 1;
+  pt1.y = 3;
+
+  v->push(v, (void*)&pt1);
+
+  v->set_comparator(v, cmp);
+  ASSERT(v->find(v, (void*)&pt2) == 0, "Should have found a point with x=1 at index 0");
 
   return 0;
 }
