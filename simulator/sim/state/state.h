@@ -16,9 +16,11 @@ typedef u_int8_t borsht_type;
 
 
 typedef enum customer_status {
-  NotArrived,
-  Eating,
-  Waiting,
+  NotArrived, // before the customer has arrived
+  InQueue, // waiting to be seated
+  WaitingAtTable, // waiting at the table (either ready to order or waiting for food)
+  Eating, // eating borsht
+  Ordered,        // after order has been taken
   Left,
 } customer_status;
 
@@ -32,30 +34,32 @@ typedef enum table_status {
  * State of a table in the restaurant
  */
 typedef struct table_state{
-  table_id id;
-  table_status current_status;
+  table_id id; // id of the table
+  table_status current_status; // status of the table
 } table;
 
 typedef struct waitstaff_state {
   waitstaff_id id;
-  borsht_type carrying[3];
-  vector* tables; 
+  borsht_type carrying[3]; // number of each type of borsht_type that this 
+                           // waiter is carrying
+  vector* tables;  // a collection of tables that are to be managaed by this 
+                   // member of wait staff
 } waitstaff;
 
 typedef struct customer_state {
-  customer_id id;
-  borsht_type preference;
-  customer_status current_status;
+  customer_id id; // id of this customer
+  borsht_type preference; // borsht preference 
+  customer_status current_status; // current customer status
 } customer;
 
 typedef struct order {
-  borsht_type type;
-  int quantity;
-} order;
+  borsht_type type; // type of borsht
+  int quantity; // number of this type
+} order; 
 
 typedef struct kitchen_state {
   int prepared_bowls[3]; // the number of prepared bowls indexed by type
-  vector* orders;
+  vector* orders; // a vector of orders (see type order)
 } kitchen;
 
 
@@ -84,7 +88,6 @@ typedef struct state {
 
 state* init_state(int num_customers, int num_tables, int num_waiter, int num_cooks);
 vector* init_waitstaff_states(int num_waiter, int num_tables);
-vector* init_tables(int num_tables, table_id start);
 vector* init_customers(int customers);
 kitchen init_kitchen_state();
 #endif // !STATE
