@@ -1,6 +1,6 @@
 CC := gcc
 
-CFLAGS = -Wall -Wextra -Wno-unused-parameter -Wno-unused-variable -Wno-unused-result -Wno-unused-but-set-variable -Wno-pointer-arith -Werror -std=c17 -Wpedantic -O0 -g -pthread
+CFLAGS = -Wall -Wextra -Wno-unused-parameter -Wno-unused-variable -Wno-unused-result -Wno-unused-but-set-variable -Wno-pointer-arith  -std=c17 -Wpedantic -O0 -g -pthread
 
 TARGET_EXEC := restaurant
 TEST_TARGET := test
@@ -11,8 +11,8 @@ SRCS := $(shell find $(SRC_DIRS) -name '*.c')
 # ./dir/hello.cpp into ./build/./dir/hello.cpp.o
 OBJS := $(SRCS:%=$(BUILD_DIR)/%.o)
 
-TEST_SRC_DIRS := ./tests ./simulator/sim/state ./simulator/sim/ds
-TEST_SRC := $(shell find $(TEST_SRC_DIRS) -name '*.c')
+TEST_SRC_DIRS := ./tests ./simulator 
+TEST_SRC := $(filter-out %sim/main.c, $(shell find $(TEST_SRC_DIRS) -name '*.c'))
 TEST_OBJS := $(TEST_SRC:%=$(BUILD_DIR)/%.o)
 
 

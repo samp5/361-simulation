@@ -1,9 +1,9 @@
 #include <stdlib.h>
 #include <sys/types.h>
 
-typedef u_int16_t table_id;
-typedef u_int16_t customer_id;
-typedef u_int8_t borsht_type;
+typedef int16_t table_id;
+typedef int16_t customer_id;
+typedef int8_t borsht_type;
 
 /////////////////////////////////////////////////////////////////////
 //
@@ -11,9 +11,9 @@ typedef u_int8_t borsht_type;
 //
 
 /*
- * Check to see if a customer has arrived at the restaurant
+ * Check to see if a customer is in the restaurant
  */
-int arrive(customer_id);
+int has_arrived(customer_id);
 
 /*
  * Leave the restaurant

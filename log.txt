@@ -1,0 +1,84 @@
+TID:124243677640512: Checking cutomer 0 has arrived
+TID:124243677640512: Customer with ID = 0 does not exists... exiting
+TID:124243677640512: Checking cutomer 0 has arrived
+TID:124243677640512: Checking cutomer 1 has arrived
+TID:124243677640512: Checking cutomer 2 has arrived
+TID:124243677640512: Checking cutomer 3 has arrived
+TID:124243677640512: Checking cutomer 4 has arrived
+TID:124243677640512: Checking cutomer 5 has arrived
+TID:124243677640512: Checking cutomer 6 has arrived
+TID:124243677640512: Checking cutomer 7 has arrived
+TID:124243677640512: Checking cutomer 8 has arrived
+TID:124243677640512: Checking cutomer 9 has arrived
+TID:124243677640512: Checking cutomer 0 has arrived
+TID:124243677640512: Checking cutomer 1 has arrived
+TID:124243677640512: Checking cutomer 2 has arrived
+TID:124243677640512: Checking cutomer 3 has arrived
+TID:124243677640512: Checking cutomer 4 has arrived
+TID:124243677640512: Checking cutomer 5 has arrived
+TID:124243677640512: Checking cutomer 6 has arrived
+TID:124243677640512: Checking cutomer 7 has arrived
+TID:124243677640512: Checking cutomer 8 has arrived
+TID:124243677640512: Checking cutomer 9 has arrived
+TID:124243677640512: Checking cutomer 10 has arrived
+TID:124243677640512: Customer with ID = 10 does not exists... exiting
+TID:124243677640512: Cutomer 0 trying to eat
+TID:124243677640512: Customer 0 is starting to eat BORSHT
+TID:124243677640512: Cutomer 1 trying to eat
+TID:124243677640512: Customer 1 is starting to eat BORSHT
+TID:124243677640512: Cutomer 2 trying to eat
+TID:124243677640512: Customer 2 is starting to eat BORSHT
+TID:124243677640512: Cutomer 3 trying to eat
+TID:124243677640512: Customer 3 is starting to eat BORSHT
+TID:124243677640512: Cutomer 4 trying to eat
+TID:124243677640512: Customer 4 is starting to eat BORSHT
+TID:124243677640512: Cutomer 5 trying to eat
+TID:124243677640512: Customer 5 is starting to eat BORSHT
+TID:124243677640512: Cutomer 6 trying to eat
+TID:124243677640512: Customer 6 is starting to eat BORSHT
+TID:124243677640512: Cutomer 7 trying to eat
+TID:124243677640512: Customer 7 is starting to eat BORSHT
+TID:124243677640512: Cutomer 8 trying to eat
+TID:124243677640512: Customer 8 is starting to eat BORSHT
+TID:124243677640512: Cutomer 9 trying to eat
+TID:124243677640512: Customer 9 is starting to eat BORSHT
+TID:124243677640512: Cutomer 0 trying to eat
+TID:124243677640512: Customer 0 is sitting at table 0. There are 0 bowls of borsht type 1 there. There must be exactly 1
+TID:124243677640512: Cutomer 1 trying to eat
+TID:124243677640512: Customer 1 is sitting at table 1. There are 0 bowls of borsht type 1 there. There must be exactly 1
+TID:124243677640512: Cutomer 2 trying to eat
+TID:124243677640512: Customer 2 is sitting at table 2. There are 0 bowls of borsht type 0 there. There must be exactly 1
+TID:124243677640512: Cutomer 3 trying to eat
+TID:124243677640512: Customer 3 is sitting at table 3. There are 0 bowls of borsht type 1 there. There must be exactly 1
+TID:124243677640512: Cutomer 4 trying to eat
+TID:124243677640512: Customer 4 is sitting at table 4. There are 0 bowls of borsht type 2 there. There must be exactly 1
+TID:124243677640512: Cutomer 5 trying to eat
+TID:124243677640512: Customer 5 is sitting at table 5. There are 0 bowls of borsht type 1 there. There must be exactly 1
+TID:124243677640512: Cutomer 6 trying to eat
+TID:124243677640512: Customer 6 is sitting at table 6. There are 0 bowls of borsht type 1 there. There must be exactly 1
+TID:124243677640512: Cutomer 7 trying to eat
+TID:124243677640512: Customer 7 is sitting at table 7. There are 0 bowls of borsht type 0 there. There must be exactly 1
+TID:124243677640512: Cutomer 8 trying to eat
+TID:124243677640512: Customer 8 is sitting at table 8. There are 0 bowls of borsht type 0 there. There must be exactly 1
+TID:124243677640512: Cutomer 9 trying to eat
+TID:124243677640512: Customer 9 is sitting at table 9. There are 0 bowls of borsht type 1 there. There must be exactly 1
+TID:124243677640512: Cutomer 0 trying to eat
+TID:124243677640512: Customer 0 tried to eat but is already busy eating!
+TID:124243677640512: Cutomer 1 trying to eat
+TID:124243677640512: Customer 1 tried to eat but is already busy eating!
+TID:124243677640512: Cutomer 2 trying to eat
+TID:124243677640512: Customer 2 tried to eat but is already busy eating!
+TID:124243677640512: Cutomer 3 trying to eat
+TID:124243677640512: Customer 3 tried to eat but is already busy eating!
+TID:124243677640512: Cutomer 4 trying to eat
+TID:124243677640512: Customer 4 tried to eat but is already busy eating!
+TID:124243677640512: Cutomer 5 trying to eat
+TID:124243677640512: Customer 5 tried to eat but is already busy eating!
+TID:124243677640512: Cutomer 6 trying to eat
+TID:124243677640512: Customer 6 tried to eat but is already busy eating!
+TID:124243677640512: Cutomer 7 trying to eat
+TID:124243677640512: Customer 7 tried to eat but is already busy eating!
+TID:124243677640512: Cutomer 8 trying to eat
+TID:124243677640512: Customer 8 tried to eat but is already busy eating!
+TID:124243677640512: Cutomer 9 trying to eat
+TID:124243677640512: Customer 9 tried to eat but is already busy eating!

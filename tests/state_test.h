@@ -1,3 +1,6 @@
-#include "../simulator/sim/state/state.h"
-extern const int BORSHT_TYPES;
+#ifndef STATE_TEST
+#define STATE_TEST
+
 void state_test_all();
+
+#endif // !STATE_TEST

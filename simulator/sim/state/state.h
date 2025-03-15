@@ -9,20 +9,21 @@
 #include "../ds/queue.h"
 #include <sys/types.h>
 
-typedef u_int16_t table_id;
-typedef u_int16_t customer_id;
-typedef u_int16_t waitstaff_id;
-typedef u_int8_t borsht_type;
+typedef int16_t table_id;
+typedef int16_t customer_id;
+typedef int16_t waitstaff_id;
+typedef int8_t borsht_type;
+typedef int customer_status;
 
 
-typedef enum customer_status {
-  NotArrived, // before the customer has arrived
-  InQueue, // waiting to be seated
-  WaitingAtTable, // waiting at the table (either ready to order or waiting for food)
-  Eating, // eating borsht
-  Ordered,        // after order has been taken
-  Left,
-} customer_status;
+typedef enum customer_statuses {
+  NotArrived = 1, // before the customer has arrived
+  InQueue = 2, // waiting to be seated
+  AtTable = 4, // waiting to order 
+  Eating = 8, // eating borsht
+  Ordered = 16,        // after order has been taken
+  Left = 32,
+} customer_statuses;
 
 typedef enum table_status {
   Clean,
@@ -36,20 +37,23 @@ typedef enum table_status {
 typedef struct table_state{
   table_id id; // id of the table
   table_status current_status; // status of the table
+  int borsht_bowls[3]; // the number of prepared bowls indexed by type
 } table;
 
 typedef struct waitstaff_state {
   waitstaff_id id;
   borsht_type carrying[3]; // number of each type of borsht_type that this 
                            // waiter is carrying
-  vector* tables;  // a collection of tables that are to be managaed by this 
+  vector* table_ids;  // a collection of tables_ids that are to be managaed by this 
                    // member of wait staff
 } waitstaff;
 
 typedef struct customer_state {
   customer_id id; // id of this customer
   borsht_type preference; // borsht preference 
-  customer_status current_status; // current customer status
+  customer_status current_status; // bitwise & of customer statuses
+  table_id table_id;
+  int borsht_eaten;
 } customer;
 
 typedef struct order {
@@ -69,17 +73,17 @@ typedef struct state {
   int num_customers;
   int num_customers_arrived;
 
-  // customer states
+  // customer states (cmp based on id)
   vector* customers;
 
-  // customers who are waiting in line (based on customer_id)
+  // customers who are waiting in line
   queue* seating_line;
 
   // waitstaff state
   vector* waitstaff_states;
 
-  // all table ids
-  vector* table_ids;
+  // all tables
+  vector* tables;
 
   // kitchen state
   struct kitchen_state kitchen_state;

@@ -1,5 +1,5 @@
-void *wait_staff();
+void *run_wait_staff();
 
-void *cook_staff();
+void *run_cook_staff();
 
-void *customer();
+void *run_customer();
