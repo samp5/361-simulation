@@ -6,6 +6,7 @@ static int dequeue(queue *q, int *element);
 static int size(queue *vec);
 static void deallocate(queue **vec);
 static void resize(queue *q);
+static int get_at(queue *q, int, int *);
 
 static void resize(queue *q) {
   int *new_arr = malloc(sizeof(int) * (q->capacity * 2));
@@ -41,6 +42,15 @@ int dequeue(queue *q, int *element) {
 
   return 0;
 }
+
+int get_at(queue *q, int index, int *element) {
+  if (q == NULL || index >= q->size) {
+    return -1;
+  }
+  size_t adj_index = (q->front + index) % q->capacity;
+  *element = q->arr[adj_index];
+  return 0;
+}
 int size(queue *q) {
   if (q == NULL) {
     return -1;
@@ -68,6 +78,7 @@ queue *new_queue() {
   q->dequeue = dequeue;
   q->queue = add;
   q->dealloc = deallocate;
+  q->get_at = get_at;
 
   return q;
 }
