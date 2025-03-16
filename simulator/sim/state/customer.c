@@ -8,11 +8,30 @@
 #include <unistd.h>
 
 unsigned long CUSTOMER_EAT_DELAY = 2000; // in microseconds
+unsigned long CUSTOMER_ARRIVE_DELAY =
+    10000; // in microseconds (10 ms)
+           // will range from 50 to 100 ms in impl
 extern state *GLOBAL_STATE;
+/*
+ * Global state helper functions
+ *
+ * NOTE: Read header comments before use. Certain locks
+ * need to be held when calling these.
+ */
 static customer *get_mut_customer(customer_id);
 static table *get_mut_table(table_id id);
+
+/*
+ * Customer routines
+ */
+static void run_customer_routine(customer_id id, void *(*routine)(void *));
 static void customer_start_to_eat(customer_id id);
 static void *customer_eat_routine(void *id);
+static void *customer_arrive_routine(void *id);
+
+/*
+ * Customer status helper functions
+ */
 static int can_arrive(customer_status stat);
 static int can_order(customer_status stat);
 static int can_be_seated(customer_status stat);
@@ -26,6 +45,11 @@ void inconsistent_state();
  * customer is in scope
  */
 static customer *get_mut_customer(customer_id id) {
+
+  if (!check(Customer)) {
+    PRINT_ERR(0, "Cusomer mutex was not held on entering get_mut_customer%s",
+              "\n");
+  }
 
   customer dummy;
   dummy.id = id;
@@ -47,6 +71,10 @@ static customer *get_mut_customer(customer_id id) {
  * pointer is in scope
  */
 static table *get_mut_table(table_id id) {
+  if (!check(Table)) {
+    PRINT_ERR(0, "Cusomer mutex was not held on entering get_mut_customer%s",
+              "\n");
+  }
   table dummy;
   dummy.id = id;
 
@@ -133,14 +161,29 @@ void eat(customer_id id) {
 }
 
 /*
- * Detach a thread that will modify a cusotmers state after some delay
+ * Create a detached thread that modifies customer status from
+ * Eating to not eating after some specified amount of time
  */
 static void customer_start_to_eat(customer_id id) {
+  run_customer_routine(id, customer_eat_routine);
+}
+
+/*
+ * Create a detached thread that modifies customer status from
+ * NotArrived to InQueue after some semi-random amount of time
+ */
+void delay_customer_arrival(customer_id id) {
+  run_customer_routine(id, customer_arrive_routine);
+}
+
+/*
+ * Detach a thread that will modify a cusotmers state after some delay
+ */
+static void run_customer_routine(customer_id id, void *(*routine)(void *)) {
   pthread_t tid;
   customer_id *id_ptr = malloc(sizeof(customer_id));
   *id_ptr = id;
-  int creat_ret =
-      pthread_create(&tid, NULL, customer_eat_routine, (void *)id_ptr);
+  int creat_ret = pthread_create(&tid, NULL, routine, (void *)id_ptr);
   if (creat_ret != 0) {
     perror("pthread_create");
     exit(1);
@@ -175,6 +218,33 @@ static void *customer_eat_routine(void *arg) {
   pthread_exit(NULL);
 }
 
+static void *customer_arrive_routine(void *arg) {
+  customer_id id = *(customer_id *)arg;
+  usleep(CUSTOMER_ARRIVE_DELAY * (rand() % 10 + 5));
+
+  int locks = Customer | Queue;
+  take(locks);
+
+  customer *custy = get_mut_customer(id);
+
+  custy->borsht_eaten += 1;
+
+  if (custy->current_status != NotArrived) {
+    BAIL_RET_RELEASE_OHMY(
+        NULL,
+        "Customer %d had an incorrect status in the internal arrival routine, "
+        "this is a mistake.",
+        custy->id);
+  }
+  custy->current_status = InQueue;
+
+  // Queue our customer
+  GLOBAL_STATE->seating_line->queue(GLOBAL_STATE->seating_line, custy->id);
+
+  release(locks);
+
+  pthread_exit(NULL);
+}
 static int can_arrive(customer_status stat) { return stat == NotArrived; }
 
 static int can_order(customer_status stat) { return stat == AtTable; }

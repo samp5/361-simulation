@@ -1,7 +1,7 @@
 #include "../macros.h"
 #include "state.h"
-#include <stdio.h>
 #include <unistd.h>
+
 extern state *GLOBAL_STATE;
 static int test_has_arrived();
 static int test_nonexistent_customer();
@@ -9,12 +9,25 @@ static int test_basic();
 static int test_basic_fail();
 static int test_basic_fail2();
 
+void reset_state() {
+  GLOBAL_STATE = init_state(
+      GLOBAL_STATE->num_customers,
+      GLOBAL_STATE->tables->len(GLOBAL_STATE->tables),
+      GLOBAL_STATE->waitstaff_states->len(GLOBAL_STATE->waitstaff_states),
+      GLOBAL_STATE->kitchen_state.num_cooks);
+}
+
 void customer_state_test_all() {
   TEST(test_has_arrived);
+  reset_state();
   TEST(test_nonexistent_customer);
+  reset_state();
   TEST(test_basic);
+  reset_state();
   TEST(test_basic_fail);
+  reset_state();
   TEST(test_basic_fail2);
+  reset_state();
 }
 
 static int test_has_arrived() {
@@ -102,7 +115,8 @@ static int test_basic() {
     table *t_i;
     table dummy;
 
-    dummy.id = c_i->id;
+    dummy.id = c_i->table_id;
+
     int table_index = tables->find(tables, (void *)&dummy);
     tables->get_mut_at(tables, table_index, (void **)&t_i);
 

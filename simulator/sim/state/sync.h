@@ -6,9 +6,11 @@ typedef enum locks {
   Table = 2,
   Waitstaff = 4,
   Cook = 8,
+  Queue = 16,
 } Lock;
 
 void take(int locks);
 void release(int locks);
+int check(int locks);
 
 #endif // !SYNC

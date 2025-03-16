@@ -7,11 +7,16 @@
 extern int WOULD_FAIL;
 static char buf[1024];
 
+#ifndef COLORS
+#define COLORS
+
 #define RESET "\x1B[0m"
 #define RED "\x1B[31m"
 #define GREEN "\x1B[32m"
 #define YELLOW "\x1B[33m"
 #define BOLD "\x1B[1m"
+
+#endif // !COLORS
 
 #define TEST_CONTEXT_F(msg, ...)                                               \
   do {                                                                         \

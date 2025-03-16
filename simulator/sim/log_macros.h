@@ -7,6 +7,16 @@
 
 static char buf[1024];
 extern FILE *LOG_FILE;
+#ifndef COLORS
+#define COLORS
+
+#define RESET "\x1B[0m"
+#define RED "\x1B[31m"
+#define GREEN "\x1B[32m"
+#define YELLOW "\x1B[33m"
+#define BOLD "\x1B[1m"
+
+#endif // !COLORS
 
 void log_init();
 
@@ -17,10 +27,21 @@ void log_init();
     inconsistent_state();                                                      \
     return;                                                                    \
   } while (0)
+
+#define PRINT_ERR(recover, msg, ...)                                           \
+  do {                                                                         \
+    LOG(msg, __VA_ARGS__);                                                     \
+    fprintf(stderr, RED BOLD msg RESET, __VA_ARGS__);                          \
+    if (!recover) {                                                            \
+      exit(1);                                                                 \
+    }                                                                          \
+  } while (0)
+
 #define BAIL_RET_RELEASE_OHMY(ret, msg, ...)                                   \
   do {                                                                         \
     LOG(msg, __VA_ARGS__);                                                     \
     release(locks);                                                            \
+    inconsistent_state();                                                      \
     return ret;                                                                \
   } while (0)
 #define LOG(msg, ...)                                                          \
