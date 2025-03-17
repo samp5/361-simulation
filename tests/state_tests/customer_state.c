@@ -1,5 +1,5 @@
 #include "../macros.h"
-#include "state.h"
+#include "state_tests.h"
 #include <unistd.h>
 
 extern state *GLOBAL_STATE;
