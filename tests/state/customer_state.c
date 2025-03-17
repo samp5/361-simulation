@@ -101,11 +101,6 @@ static int test_basic() {
     ASSERT_VALID("Customer should be able to eat", eat, c_i->id);
   }
 
-  // this seems like a reasonable amount of time for all other threads to run
-  // eat_routine?
-  TEST_CONTEXT("Sleeping for 10ms for worker threads to finish\n");
-  usleep(10000);
-
   for (int i = 0; i < GLOBAL_STATE->num_customers; i++) {
     // get customer
     customer *c_i;

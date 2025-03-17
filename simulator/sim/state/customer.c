@@ -96,7 +96,7 @@ static table *get_mut_table(table_id id) {
  */
 int has_arrived(customer_id id) {
 
-  int locks = Customer;
+  int locks = Global;
   take(locks);
 
   LOG("Checking cutomer %d has arrived", id);
@@ -117,7 +117,7 @@ void leave(customer_id id) {}
  * Eat borsht
  */
 void eat(customer_id id) {
-  int locks = Customer | Table;
+  int locks = Global;
   take(locks);
 
   LOG("Cutomer %d trying to eat", id);
@@ -152,9 +152,13 @@ void eat(customer_id id) {
     // update target state and table state
     target->current_status = target->current_status | Eating;
 
-    customer_start_to_eat(target->id);
-
     LOG("Customer %d is starting to eat BORSHT", target->id);
+    usleep(CUSTOMER_EAT_DELAY);
+    target->current_status = target->current_status ^ Eating;
+    target_table->borsht_bowls[target->preference] -= 1;
+    target->borsht_eaten += 1;
+    LOG("Customer %d is done eating BORSHT", target->id);
+    // customer_start_to_eat(target->id);
   }
 
   release(locks);
@@ -195,7 +199,7 @@ static void *customer_eat_routine(void *arg) {
   customer_id id = *(customer_id *)arg;
   usleep(CUSTOMER_EAT_DELAY);
 
-  int locks = Customer | Table;
+  int locks = Global;
   take(locks);
 
   customer *custy = get_mut_customer(id);
@@ -222,7 +226,7 @@ static void *customer_arrive_routine(void *arg) {
   customer_id id = *(customer_id *)arg;
   usleep(CUSTOMER_ARRIVE_DELAY * (rand() % 10 + 5));
 
-  int locks = Customer | Queue;
+  int locks = Global;
   take(locks);
 
   customer *custy = get_mut_customer(id);

@@ -7,6 +7,7 @@ typedef enum locks {
   Waitstaff = 4,
   Cook = 8,
   Queue = 16,
+  Global = 32,
 } Lock;
 
 void take(int locks);

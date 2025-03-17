@@ -7,11 +7,15 @@ static pthread_mutex_t table_tex = PTHREAD_MUTEX_INITIALIZER;
 static pthread_mutex_t waitstaff_tex = PTHREAD_MUTEX_INITIALIZER;
 static pthread_mutex_t cook_tex = PTHREAD_MUTEX_INITIALIZER;
 static pthread_mutex_t queue_tex = PTHREAD_MUTEX_INITIALIZER;
+static pthread_mutex_t global_tex = PTHREAD_MUTEX_INITIALIZER;
 
 /*
  * Always take locks in this order
  */
 void take(int locks) {
+  if (locks == Global) {
+    pthread_mutex_lock(&global_tex);
+  }
   if (Customer & locks) {
     pthread_mutex_lock(&customer_tex);
   }
@@ -41,6 +45,10 @@ void take(int locks) {
 
 int check(int locks) {
   int result = 0;
+  MUTEX_CHECK(global_tex, result);
+  if (result) {
+    return result;
+  }
   if (Customer & locks) {
     MUTEX_CHECK(customer_tex, result);
   }
@@ -63,6 +71,10 @@ int check(int locks) {
  * Always release locks in the opposite order
  */
 void release(int locks) {
+  if (locks == Global) {
+    pthread_mutex_unlock(&global_tex);
+    return;
+  }
   if (Queue & locks) {
     pthread_mutex_unlock(&cook_tex);
   }
