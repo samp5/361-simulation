@@ -53,6 +53,7 @@ typedef struct customer_state {
   customer_status current_status; // bitwise & of customer statuses
   table_id table_id;
   int borsht_eaten;
+  int borsht_desired;
 } customer;
 
 typedef struct order {

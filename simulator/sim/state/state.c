@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 const int BORSHT_TYPES = 3;
+const int MAX_BORSHT_ORDER = 4;
 
 vector *init_waitstaff_states(int num_waiter, int num_tables);
 vector *init_tables(int num_tables);
@@ -158,6 +159,7 @@ vector *init_customers(int num_customers) {
     customer_i->preference = rand() % BORSHT_TYPES;
     customer_i->current_status = NotArrived;
     customer_i->borsht_eaten = 0;
+    customer_i->borsht_desired = (rand() % MAX_BORSHT_ORDER) + 1;
     customer_i->table_id = -1;
     customers->push(customers, customer_i);
   }

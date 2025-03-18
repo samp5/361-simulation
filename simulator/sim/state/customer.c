@@ -125,7 +125,6 @@ void eat(customer_id id) {
   if (is_eating(target->current_status)) {
     BAIL_AND_RELEASE("Customer %d tried to eat but is already busy eating!",
                      id);
-    inconsistent_state();
   }
 
   if (!is_waiting_for_food(target->current_status)) {
@@ -133,7 +132,13 @@ void eat(customer_id id) {
         "Customer %d was not wating for food. A customer needs to be at a "
         "table and have ordered before they can eat.",
         id);
-    inconsistent_state();
+  }
+
+  if (target->borsht_eaten >= target->borsht_desired) {
+    BAIL_AND_RELEASE(
+        "Customer %d is trying to eat borsht, it's the kind they like but they "
+        "are so full! Wanted %d bowls, but got served one too many.",
+        target->id, target->borsht_desired);
   }
 
   table *target_table = get_mut_table(target->table_id);
@@ -144,20 +149,21 @@ void eat(customer_id id) {
         "%d there. There must be exactly 1",
         target->id, target_table->id,
         target_table->borsht_bowls[target->preference], target->preference);
-    inconsistent_state();
-  } else {
-
-    // update target state and table state
-    target->current_status = target->current_status | Eating;
-
-    LOG("Customer %d is starting to eat BORSHT", target->id);
-    usleep(CUSTOMER_EAT_DELAY);
-    target->current_status = target->current_status ^ Eating;
-    target_table->borsht_bowls[target->preference] -= 1;
-    target->borsht_eaten += 1;
-    LOG("Customer %d is done eating BORSHT", target->id);
-    // customer_start_to_eat(target->id);
   }
+
+  // update target state and table state
+  target->current_status = target->current_status | Eating;
+
+  LOG("Customer %d is starting to eat BORSHT", target->id);
+
+  // eat
+  usleep(CUSTOMER_EAT_DELAY);
+
+  target->current_status = target->current_status ^ Eating;
+  target_table->borsht_bowls[target->preference] -= 1;
+  target->borsht_eaten += 1;
+
+  LOG("Customer %d is done eating BORSHT", target->id);
 
   release(locks);
 }
@@ -214,8 +220,8 @@ static void *customer_arrive_routine(void *arg) {
 
   pthread_exit(NULL);
 }
-static int can_arrive(customer_status stat) { return stat == NotArrived; }
 
+static int can_arrive(customer_status stat) { return stat == NotArrived; }
 static int can_order(customer_status stat) { return stat == AtTable; }
 
 static int can_be_seated(customer_status stat) { return stat == InQueue; }
