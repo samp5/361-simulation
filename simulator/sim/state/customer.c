@@ -25,8 +25,6 @@ static table *get_mut_table(table_id id);
  * Customer routines
  */
 static void run_customer_routine(customer_id id, void *(*routine)(void *));
-static void customer_start_to_eat(customer_id id);
-static void *customer_eat_routine(void *id);
 static void *customer_arrive_routine(void *id);
 
 /*
@@ -164,13 +162,6 @@ void eat(customer_id id) {
   release(locks);
 }
 
-/*
- * Create a detached thread that modifies customer status from
- * Eating to not eating after some specified amount of time
- */
-static void customer_start_to_eat(customer_id id) {
-  run_customer_routine(id, customer_eat_routine);
-}
 
 /*
  * Create a detached thread that modifies customer status from
@@ -195,32 +186,6 @@ static void run_customer_routine(customer_id id, void *(*routine)(void *)) {
   pthread_detach(tid);
 }
 
-static void *customer_eat_routine(void *arg) {
-  customer_id id = *(customer_id *)arg;
-  usleep(CUSTOMER_EAT_DELAY);
-
-  int locks = Global;
-  take(locks);
-
-  customer *custy = get_mut_customer(id);
-  table *table = get_mut_table(id);
-
-  custy->borsht_eaten += 1;
-  table->borsht_bowls[custy->preference] -= 1;
-
-  if (custy->current_status != (AtTable | Eating | Ordered)) {
-    LOG("Customer %d had incorrect status in internal eat routine, this is a "
-        "mistake.",
-        custy->id);
-    inconsistent_state();
-  }
-
-  custy->current_status = (AtTable | Ordered);
-
-  release(locks);
-
-  pthread_exit(NULL);
-}
 
 static void *customer_arrive_routine(void *arg) {
   customer_id id = *(customer_id *)arg;
