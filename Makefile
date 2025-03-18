@@ -25,12 +25,12 @@ $(BUILD_DIR)/$(TARGET_EXEC): $(OBJS)
 # Build step for C source
 $(BUILD_DIR)/%.c.o: %.c
 	mkdir -p $(dir $@)
-	$(CC)  $(CFLAGS) -c $< -o $@
+	$(CC)  $(CFLAGS) $(DFLAGS) -c $< -o $@
 
 $(TEST_TARGET): $(BUILD_DIR)/$(TEST_TARGET)
 
 $(BUILD_DIR)/$(TEST_TARGET): $(TEST_OBJS)
-	$(CC) $(CFLAGS) $^ -o $@ 
+	$(CC) $(CFLAGS) $(DFLAGS) $^ -o $@ 
 
 run_tests: $(BUILD_DIR)/$(TEST_TARGET)
 	./build/test

@@ -1,6 +1,6 @@
 #include "state_test.h"
 #include "macros.h"
-#include "state/state.h"
+#include "state_tests/state_tests.h"
 #include <stdatomic.h>
 extern state *GLOBAL_STATE;
 int WOULD_FAIL;

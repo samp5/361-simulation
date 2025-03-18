@@ -7,6 +7,7 @@ vector *init_waitstaff_states(int num_waiter, int num_tables);
 vector *init_tables(int num_tables);
 vector *init_customers(int customers);
 kitchen init_kitchen_state(int);
+static void init_seating_line(state *);
 
 state *init_state(int num_customers, int num_tables, int num_waiter,
                   int num_cooks) {
@@ -22,6 +23,12 @@ state *init_state(int num_customers, int num_tables, int num_waiter,
 
   // seating queue
   sim_state->seating_line = new_queue();
+
+#ifndef STAGGERED_ARRIVE
+  init_seating_line(sim_state);
+#else
+  init_customer_arrivals(sim_state);
+#endif
 
   // waitstaff collection
   sim_state->waitstaff_states = init_waitstaff_states(num_waiter, num_tables);
@@ -185,6 +192,17 @@ void init_customer_arrivals(state *state) {
   }
 }
 
+static void init_seating_line(state *s) {
+  queue *q = s->seating_line;
+  vector *customers = s->customers;
+
+  for (int i = 0; i < s->num_customers; i++) {
+    customer *c_i;
+    customers->get_mut_at(customers, i, (void **)&c_i);
+    c_i->current_status = InQueue;
+    q->queue(q, c_i->id);
+  }
+}
 void dump_state(state *s) {
   char fn[1024];
   sprintf(fn, "state_%d.txt", s->num_customers);

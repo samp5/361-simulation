@@ -18,6 +18,9 @@ static void resize(queue *q) {
 
   q->capacity = q->capacity * 2;
   q->front = 0;
+
+  free(q->arr);
+  q->arr = new_arr;
 }
 
 void add(queue *q, int element) {

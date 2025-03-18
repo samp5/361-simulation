@@ -31,17 +31,35 @@ void customer_state_test_all() {
 }
 
 static int test_has_arrived() {
+  int expected_status;
+
+#ifdef STAGGERED_ARRIVE
+  expected_status = 0;
+#else
+  expected_status = 1;
+#endif
+
   for (int i = 0; i < GLOBAL_STATE->num_customers; i++) {
     int arrived = has_arrived(i);
-    FASSERT(arrived == 0, "Expected customer %d to be NotArrived", i);
+    FASSERT(arrived == expected_status, "Expected customer %d to be NotArrived",
+            i);
   }
   return 0;
 }
 
 static int test_nonexistent_customer() {
+  int expected_status;
+
+#ifdef STAGGERED_ARRIVE
+  expected_status = 0;
+#else
+  expected_status = 1;
+#endif
+
   for (int i = 0; i < GLOBAL_STATE->num_customers; i++) {
     int arrived = has_arrived(i);
-    FASSERT(arrived == 0, "Expected customer %d to be NotArrived", i);
+    FASSERT(arrived == expected_status, "Expected customer %d to be NotArrived",
+            i);
   }
   int nonexistent = GLOBAL_STATE->num_customers;
   ASSERT_FAIL("Customer id should not exist", has_arrived, nonexistent);
