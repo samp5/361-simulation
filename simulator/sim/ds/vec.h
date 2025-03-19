@@ -1,4 +1,6 @@
 #include <stdlib.h>
+#ifndef DS_VEC
+#define DS_VEC
 
 // NOTE:
 // this vector implemenation should only store
@@ -141,3 +143,5 @@ typedef struct vector {
  *
  */
 vector *new_vector(size_t with_size);
+
+#endif // !DS_VEC

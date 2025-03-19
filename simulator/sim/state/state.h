@@ -3,14 +3,14 @@
  * track the state of the simulation.
  *
  */
-#ifndef STATE
-#define STATE
 #include "../ds/queue.h"
 #include "../ds/vec.h"
 #include <sys/types.h>
+#ifndef STATE
+#define STATE
 
 typedef int16_t table_id;
-typedef int16_t customer_id;
+typedef int customer_id;
 typedef int16_t waitstaff_id;
 typedef int8_t borsht_type;
 typedef int customer_status;
@@ -98,5 +98,6 @@ kitchen init_kitchen_state(int num_cooks);
 void init_customer_arrivals(state *state);
 void delay_customer_arrival(customer_id id);
 void dump_state(state *s);
+void inconsistent_state();
 
 #endif // !STATE

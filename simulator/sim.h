@@ -2,8 +2,14 @@
 #include <sys/types.h>
 
 typedef int16_t table_id;
-typedef int16_t customer_id;
+typedef int customer_id;
 typedef int8_t borsht_type;
+typedef int16_t waitstaff_id;
+
+/////////////////////////////////////////////////////////////////////
+//
+// Global API
+void get_waiting_line(customer_id **arr, size_t *len);
 
 /////////////////////////////////////////////////////////////////////
 //
@@ -38,18 +44,16 @@ void eat(customer_id);
  *        array of size `length` filled with `table_id`
  *  length - will be assigned the length of arr
  */
-void get_tables(table_id **tables, size_t *length);
+void get_tables(waitstaff_id id, table_id **tables, size_t *length);
 
 /*
- * Seat a customer at a table
+ * Seat a customer at a table.
+ * Prior to seating a customer they should have been at the front of the queue.
  *
  * params:
  *  `customer_id` - id of customer
  *  `table_id` - id of table
  *
- * return:
- *  integer representing the borsht type preferred by
- *  customer with `customer_id`
  */
 void seat(customer_id customer_id, table_id table_id);
 

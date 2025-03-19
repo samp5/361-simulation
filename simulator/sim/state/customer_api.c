@@ -2,6 +2,7 @@
 #include "../log_macros.h"
 #include "state.h"
 #include "sync.h"
+#include "util.h"
 #include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -13,15 +14,6 @@ unsigned long CUSTOMER_ARRIVE_DELAY =
            // will range from 50 to 100 ms in impl
 extern state *GLOBAL_STATE;
 /*
- * Global state helper functions
- *
- * NOTE: Read header comments before use. Certain locks
- * need to be held when calling these.
- */
-static customer *get_mut_customer(customer_id);
-static table *get_mut_table(table_id id);
-
-/*
  * Customer routines
  */
 static void run_customer_routine(customer_id id, void *(*routine)(void *));
@@ -31,63 +23,11 @@ static void *customer_arrive_routine(void *id);
  * Customer status helper functions
  */
 static int can_arrive(customer_status stat);
-static int can_order(customer_status stat);
-static int can_be_seated(customer_status stat);
 static int is_waiting_for_food(customer_status stat);
 static int is_eating(customer_status stat);
 
-void inconsistent_state();
-
-/*
- * NOTE: Lock.Customer must be held before this call and while the returned
- * customer is in scope
- */
-static customer *get_mut_customer(customer_id id) {
-
-  if (!check(Customer)) {
-    PRINT_ERR(0, "Cusomer mutex was not held on entering get_mut_customer%s",
-              "\n");
-  }
-
-  customer dummy;
-  dummy.id = id;
-
-  vector *customers = GLOBAL_STATE->customers;
-  int customer_index = customers->find(customers, (void *)&dummy);
-
-  if (customer_index == -1) {
-    LOG("Customer with ID = %d does not exists... exiting", id);
-    inconsistent_state();
-  }
-  customer *target;
-  int _ = customers->get_mut_at(customers, customer_index, (void **)&target);
-  return target;
-}
-
-/*
- * NOTE: The Lock.Tables must be held before this call and while the returned
- * pointer is in scope
- */
-static table *get_mut_table(table_id id) {
-  if (!check(Table)) {
-    PRINT_ERR(0, "Cusomer mutex was not held on entering get_mut_customer%s",
-              "\n");
-  }
-  table dummy;
-  dummy.id = id;
-
-  vector *tables = GLOBAL_STATE->tables;
-  int table_index = tables->find(tables, (void *)&dummy);
-
-  if (table_index == -1) {
-    LOG("Table with ID = %d does not exists... exiting", id);
-    inconsistent_state();
-  }
-
-  table *target;
-  int _ = tables->get_mut_at(tables, table_index, (void **)&target);
-  return target;
-}
+// If I don't include this I get a weird warning?
+extern int usleep(__useconds_t useconds);
 
 /*
  * Check to see if a customer  arrived at the restaurant
@@ -109,7 +49,30 @@ int has_arrived(customer_id id) {
 /* TODO:
  * Leave the restaurant
  */
-void leave(customer_id id) {}
+void leave(customer_id id) {
+  int locks = Global;
+  take(locks);
+
+  LOG("Cutomer %d is trying to leave", id);
+
+  customer *target = get_mut_customer(id);
+
+  if (target->borsht_desired != target->borsht_eaten) {
+    BAIL_AND_RELEASE("Customer %d tried to leave but is still hungry! Ate %d "
+                     "bowls but wanted %d",
+                     id, target->borsht_eaten, target->borsht_desired);
+  }
+
+  // set table status to dirty
+  table *target_table = get_mut_table(target->table_id);
+  target_table->current_status = Dirty;
+
+  // set status to left
+  target->current_status = Left;
+  target->table_id = -1;
+
+  release(locks);
+}
 
 /*
  * Eat borsht
@@ -168,7 +131,6 @@ void eat(customer_id id) {
   release(locks);
 }
 
-
 /*
  * Create a detached thread that modifies customer status from
  * NotArrived to InQueue after some semi-random amount of time
@@ -191,7 +153,6 @@ static void run_customer_routine(customer_id id, void *(*routine)(void *)) {
   }
   pthread_detach(tid);
 }
-
 
 static void *customer_arrive_routine(void *arg) {
   customer_id id = *(customer_id *)arg;
@@ -222,9 +183,6 @@ static void *customer_arrive_routine(void *arg) {
 }
 
 static int can_arrive(customer_status stat) { return stat == NotArrived; }
-static int can_order(customer_status stat) { return stat == AtTable; }
-
-static int can_be_seated(customer_status stat) { return stat == InQueue; }
 
 static int is_waiting_for_food(customer_status stat) {
   return stat == (AtTable | Ordered);

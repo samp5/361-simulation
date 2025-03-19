@@ -44,6 +44,20 @@ state *init_state(int num_customers, int num_tables, int num_waiter,
 }
 
 /*
+ * Compare function for waitstaff vector
+ * based on waiter_id
+ */
+int waitstaff_cmp(void *a, void *b) {
+  waitstaff *w_a = (waitstaff *)a;
+  waitstaff *w_b = (waitstaff *)b;
+  if (w_a->id == w_b->id) {
+    return 0;
+  } else {
+    return -1;
+  }
+}
+
+/*
  * initialize a vector of waitstaff members based on a number of total waiters
  * and a number of tables
  *
@@ -96,6 +110,9 @@ vector *init_waitstaff_states(int num_waiter, int num_tables) {
                            (void *)waiter_i); // add this waiter
     start = start + tables_for_i;             // increment our table_id
   }
+
+  waitstaff_states->set_comparator(waitstaff_states, waitstaff_cmp);
+
   return waitstaff_states;
 }
 

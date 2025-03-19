@@ -1,5 +1,6 @@
 #include <stdlib.h>
-
+#ifndef DS_QUEUE
+#define DS_QUEUE
 typedef struct queue {
   int *arr;
   size_t front;
@@ -13,3 +14,5 @@ typedef struct queue {
 } queue;
 
 queue *new_queue();
+
+#endif // !DS_QUEUE
