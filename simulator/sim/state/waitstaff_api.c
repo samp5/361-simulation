@@ -45,30 +45,71 @@ void get_tables(waitstaff_id id, table_id **tables, size_t *length) {
  *  `table_id` - id of table
  *
  * Pitfalls:
- *  1. Customer is already seated
- *  2. Table is not in waitstaff section
- *  3. Table is occupied
+ *  1. Customer is not in line - x
+ *  2. Customer is not in the front of the line - x
+ *  3. Table is not in waitstaff section - x
+ *  4. Table is occupied or dirty
  */
-void seat(waitstaff_id waitstaff_id, customer_id customer_id,
-          table_id table_id) {
+void seat(waitstaff_id w_id, customer_id c_id, table_id t_id) {
 
   int locks = Global;
   take(locks);
+  LOG("Waitstaff member %d is trying to seat Customer %d at table %d", w_id,
+      c_id, t_id);
 
   customer *c;
-  if ((c = get_mut_customer(customer_id)) == NULL) {
-    BAIL_AND_RELEASE("Customer %d was NULL", customer_id);
+  if ((c = get_mut_customer(c_id)) == NULL) {
+    BAIL_AND_RELEASE("Customer %d was NULL", c_id);
   }
 
-  table *t;
-  if ((t = get_mut_table(table_id)) == NULL) {
-    BAIL_AND_RELEASE("Table %d was NULL", table_id);
-  }
-
+  // 1. Customer is not in line
   if (c->current_status != InQueue) {
+    BAIL_AND_RELEASE("Customer %d was not in line!", c->id);
   }
 
+  //  2. Customer is not in the front of the line
+  customer_id front;
+  GLOBAL_STATE->seating_line->peek(GLOBAL_STATE->seating_line, &front);
+  if (front != c_id) {
+    BAIL_AND_RELEASE("Customer %d was in line but not in front!", c->id);
+  }
+
+  //  3. Table is not in waitstaff section
+  waitstaff *w;
+  if ((w = get_mut_waitstaff(w_id)) == NULL) {
+    BAIL_AND_RELEASE("Waitstaff %d was NULL", c_id);
+  }
+
+  int found = w->table_ids->find(w->table_ids, (void *)&t_id);
+  if (found == -1) {
+    BAIL_AND_RELEASE("Table %d does not belong to waitstaff member %d!", t_id,
+                     w_id);
+  }
+
+  //  4. Table is dirty or occupied
+  table *t;
+  if ((t = get_mut_table(t_id)) == NULL) {
+    BAIL_AND_RELEASE("Table %d was NULL", t_id);
+  }
+
+  switch (t->current_status) {
+  case Occupied:
+    BAIL_AND_RELEASE("Table %d was is already occupied!", t_id);
+    break;
+  case Dirty:
+    BAIL_AND_RELEASE("Table %d is Dirty!", t_id);
+    break;
+  case Clean:
+    break;
+  }
+
+  // Everything is OK!
+  // Remove customer from queue and update both their status
+  // and the table they are sitting at.
+  remove_customer_from_queue(c_id);
   c->table_id = t->id;
+  c->current_status = AtTable;
+  t->current_status = Occupied;
 
   release(locks);
 }
