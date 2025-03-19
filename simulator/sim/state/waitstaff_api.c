@@ -32,7 +32,9 @@ void get_tables(waitstaff_id id, table_id **tables, size_t *length) {
   for (int i = 0; i < table_vec->len(table_vec); i++) {
     table_vec->get_at(table_vec, i, arr + i);
   }
+
   *length = table_vec->len(table_vec);
+  *tables = arr;
 
   release(locks);
 }
