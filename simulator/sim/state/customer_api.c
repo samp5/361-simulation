@@ -38,7 +38,11 @@ int has_arrived(customer_id id) {
   take(locks);
 
   LOG("Checking cutomer %d has arrived", id);
-  customer *target = get_mut_customer(id);
+  customer *target;
+  if ((target = get_mut_customer(id)) == NULL) {
+    BAIL_RET_RELEASE(-1, "Customer %d was NULL", id);
+  }
+
   int arrived = !can_arrive(target->current_status);
 
   release(locks);
@@ -55,7 +59,10 @@ void leave(customer_id id) {
 
   LOG("Cutomer %d is trying to leave", id);
 
-  customer *target = get_mut_customer(id);
+  customer *target;
+  if ((target = get_mut_customer(id)) == NULL) {
+    BAIL_AND_RELEASE("Customer %d was NULL", id);
+  }
 
   if (target->borsht_desired != target->borsht_eaten) {
     BAIL_AND_RELEASE("Customer %d tried to leave but is still hungry! Ate %d "
@@ -64,7 +71,11 @@ void leave(customer_id id) {
   }
 
   // set table status to dirty
-  table *target_table = get_mut_table(target->table_id);
+  table *target_table;
+  if ((target_table = get_mut_table(target->table_id)) == NULL) {
+    BAIL_AND_RELEASE("Table %d was NULL", target->table_id);
+  }
+
   target_table->current_status = Dirty;
 
   // set status to left
@@ -83,7 +94,10 @@ void eat(customer_id id) {
 
   LOG("Cutomer %d trying to eat", id);
 
-  customer *target = get_mut_customer(id);
+  customer *target;
+  if ((target = get_mut_customer(id)) == NULL) {
+    BAIL_AND_RELEASE("Customer %d was NULL", id);
+  }
 
   if (is_eating(target->current_status)) {
     BAIL_AND_RELEASE("Customer %d tried to eat but is already busy eating!",
@@ -104,7 +118,10 @@ void eat(customer_id id) {
         target->id, target->borsht_desired);
   }
 
-  table *target_table = get_mut_table(target->table_id);
+  table *target_table;
+  if ((target_table = get_mut_table(target->table_id)) == NULL) {
+    BAIL_AND_RELEASE("Target table %d was NULL", id);
+  }
 
   if (target_table->borsht_bowls[target->preference] != 1) {
     BAIL_AND_RELEASE(
@@ -161,21 +178,22 @@ static void *customer_arrive_routine(void *arg) {
   int locks = Global;
   take(locks);
 
-  customer *custy = get_mut_customer(id);
+  customer *custy;
+  if ((custy = get_mut_customer(id)) == NULL) {
+    BAIL_RET_RELEASE(NULL, "Customer %d was NULL", id);
+  }
 
   custy->borsht_eaten += 1;
 
   if (custy->current_status != NotArrived) {
-    BAIL_RET_RELEASE_OHMY(
+    BAIL_RET_RELEASE(
         NULL,
         "Customer %d had an incorrect status in the internal arrival routine, "
         "this is a mistake.",
         custy->id);
   }
-  custy->current_status = InQueue;
 
-  // Queue our customer
-  GLOBAL_STATE->seating_line->queue(GLOBAL_STATE->seating_line, custy->id);
+  add_customer_to_queue(custy->id);
 
   release(locks);
 

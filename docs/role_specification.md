@@ -25,6 +25,7 @@ The behavior of the wait staff is as follows:
 - If there are customers waiting, they can seat that customer.
     - Wait staff cannot seat a customer if they have no more seats in their section
     - Everyone on the wait staff is a team player, and knows that service is much more efficient if the workload is evenly distributed.
+- Customers must be seated *in the order* that they are in line! (Get this order with `get_waiting_line`!)
 - Once they seat a customer, they ask the customer how many bowls of borscht they will be having.
     - The waitstaff is very in touch with the community and knows how each customer likes their borscht. See Cook State for more information on dealing with borscht type.
 - The wait staff informs the kitchen of the customer orders (it's borscht)

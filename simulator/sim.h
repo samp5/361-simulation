@@ -55,7 +55,8 @@ void get_tables(waitstaff_id id, table_id **tables, size_t *length);
  *  `table_id` - id of table
  *
  */
-void seat(customer_id customer_id, table_id table_id);
+void seat(waitstaff_id waitstaff_id, customer_id customer_id,
+          table_id table_id);
 
 /*
  * Get the borsht preference of a customer
@@ -73,13 +74,14 @@ borsht_type intuit_preference(customer_id c_id);
  * Take the order of a customer at a table
  *
  * params:
- *  `table_id` - id of table
+ *  `customer_id` - id of customer
  *
  * return by assignment:
  *  `quantitiy` - number of bowls requested by customer
  *
  */
-void take_order(table_id table_id, int *quantitiy);
+void take_order(waitstaff_id waitstaff_id, customer_id customer_id,
+                int *quantitiy);
 
 /*
  * Pick up borsht from the kitchen
@@ -89,7 +91,7 @@ void take_order(table_id table_id, int *quantitiy);
  *  `quantitiy` - number of bowls
  *
  */
-void pick_up_borsht(borsht_type borsht_type, int quantitiy);
+void pick_up_borsht(waitstaff_id id, borsht_type borsht_type, int quantitiy);
 
 /*
  * Pick up borsht from the kitchen
@@ -98,15 +100,16 @@ void pick_up_borsht(borsht_type borsht_type, int quantitiy);
  *  `table_id` - table to serve to
  *  `borsht_type` - type of borsht to serve
  */
-void serve(table_id table_id, borsht_type borsht_type);
+void serve(waitstaff_id waitstaff_id, table_id table_id,
+           borsht_type borsht_type);
 
 /*
  * Clean up table
  *
  * params:
- *  `table_id` - table to serve to
+ *  `table_id` - table to clean
  */
-void clean_table(table_id table_id);
+void clean_table(waitstaff_id w_id, table_id table_id);
 
 /////////////////////////////////////////////////////////////////////
 //

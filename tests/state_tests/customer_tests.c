@@ -1,6 +1,5 @@
 #include "../macros.h"
 #include "state_tests.h"
-#include <unistd.h>
 
 extern state *GLOBAL_STATE;
 static int test_has_arrived();
@@ -10,14 +9,6 @@ static int test_leave();
 static int test_leave_fail();
 static int test_basic_fail();
 static int test_basic_fail2();
-
-void reset_state() {
-  GLOBAL_STATE = init_state(
-      GLOBAL_STATE->num_customers,
-      GLOBAL_STATE->tables->len(GLOBAL_STATE->tables),
-      GLOBAL_STATE->waitstaff_states->len(GLOBAL_STATE->waitstaff_states),
-      GLOBAL_STATE->kitchen_state.num_cooks);
-}
 
 void customer_state_test_all() {
   TEST(test_has_arrived);

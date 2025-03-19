@@ -7,5 +7,6 @@ void customer_state_test_all();
 void global_state_test_all();
 void waitstaff_state_test_all();
 void cook_state_test_all();
+void reset_state();
 void reset();
 #endif // !ROLE_STATE_TEST

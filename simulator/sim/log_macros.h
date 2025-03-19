@@ -37,7 +37,7 @@ void log_init();
     }                                                                          \
   } while (0)
 
-#define BAIL_RET_RELEASE_OHMY(ret, msg, ...)                                   \
+#define BAIL_RET_RELEASE(ret, msg, ...)                                        \
   do {                                                                         \
     LOG(msg, __VA_ARGS__);                                                     \
     release(locks);                                                            \
@@ -51,6 +51,7 @@ void log_init();
     }                                                                          \
     sprintf(buf, msg, __VA_ARGS__);                                            \
     fprintf(LOG_FILE, "TID:%lu: %s\n", pthread_self(), buf);                   \
+    fflush(LOG_FILE);                                                          \
   } while (0)
 
 #endif // !LOG_MACROS
