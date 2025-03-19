@@ -39,7 +39,7 @@ void add_customer_to_queue(customer_id);
 /*
  * NOTE: Lock.Queue and Lock.Customer must be held before this call
  *
- * This function removes a customer to the queue but does NOT update their
+ * This function removes a customer from the queue but does NOT update their
  * status as it cannot be detemined at this point what the next state should be
  */
 void remove_customer_from_queue(customer_id);
