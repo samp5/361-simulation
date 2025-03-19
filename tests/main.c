@@ -1,6 +1,7 @@
 #include "init_state_test.h"
 #include "macros.h"
 #include "state_test.h"
+#include "state_tests/state_tests.h"
 #include "vec_test.h"
 
 // NOTE:
@@ -13,6 +14,7 @@ void test_state_with(int customers, int tables, int waiters, int cooks) {
   GLOBAL_STATE = init_state(customers, tables, waiters, cooks);
   TEST_INFO("Global state has %d customers, %d tables, %d waiters, %d cooks",
             customers, tables, waiters, cooks);
+  reset();
   TEST_GROUP(state_test_all);
 }
 

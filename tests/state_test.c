@@ -8,4 +8,8 @@ int WOULD_FAIL;
 void inconsistent_state() { WOULD_FAIL = 1; }
 void reset() { WOULD_FAIL = 0; }
 
-void state_test_all() { TEST_SUBGROUP(customer_state_test_all); }
+void state_test_all() {
+  TEST_SUBGROUP(customer_state_test_all);
+  reset_state();
+  TEST_SUBGROUP(global_state_test_all);
+}

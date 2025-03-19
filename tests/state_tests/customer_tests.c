@@ -6,6 +6,8 @@ extern state *GLOBAL_STATE;
 static int test_has_arrived();
 static int test_nonexistent_customer();
 static int test_basic();
+static int test_leave();
+static int test_leave_fail();
 static int test_basic_fail();
 static int test_basic_fail2();
 
@@ -28,6 +30,9 @@ void customer_state_test_all() {
   reset_state();
   TEST(test_basic_fail2);
   reset_state();
+  TEST(test_leave);
+  reset_state();
+  TEST(test_leave_fail);
 }
 
 static int test_has_arrived() {
@@ -204,6 +209,64 @@ static int test_basic_fail2() {
     t_i->borsht_bowls[c_i->preference] = 1;
 
     ASSERT_FAIL("Customer should not be able to eat", eat, c_i->id);
+  }
+
+  return 0;
+}
+
+static int test_leave() {
+
+  if (GLOBAL_STATE->num_customers == 0 || GLOBAL_STATE->tables->len == 0) {
+    return 0;
+  }
+
+  assign_customers_to_tables();
+
+  vector *customers = GLOBAL_STATE->customers;
+  vector *tables = GLOBAL_STATE->tables;
+
+  for (int i = 0; i < GLOBAL_STATE->num_customers; i++) {
+    // get customer
+    customer *c_i;
+    customers->get_mut_at(customers, i, (void **)&c_i);
+
+    // manually set desired to 0
+    c_i->borsht_desired = 0;
+    ASSERT_VALID("Customer should be able to leave", leave, c_i->id);
+  }
+
+  for (int i = 0; i < GLOBAL_STATE->num_customers; i++) {
+    // find corresponding table
+    table *t_i;
+    table dummy;
+
+    dummy.id = i;
+
+    int table_index = tables->find(tables, (void *)&dummy);
+    tables->get_mut_at(tables, table_index, (void **)&t_i);
+    FASSERT(t_i->current_status = Dirty, "Table %d should be dirty", t_i->id);
+  }
+
+  return 0;
+}
+
+static int test_leave_fail() {
+
+  if (GLOBAL_STATE->num_customers == 0 || GLOBAL_STATE->tables->len == 0) {
+    return 0;
+  }
+
+  assign_customers_to_tables();
+
+  vector *customers = GLOBAL_STATE->customers;
+  vector *tables = GLOBAL_STATE->tables;
+
+  for (int i = 0; i < GLOBAL_STATE->num_customers; i++) {
+    // get customer
+    customer *c_i;
+    customers->get_mut_at(customers, i, (void **)&c_i);
+
+    ASSERT_FAIL("Customer should be able to leave", leave, c_i->id);
   }
 
   return 0;
