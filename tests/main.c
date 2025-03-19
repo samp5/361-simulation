@@ -1,6 +1,6 @@
-#include "init_state_test.h"
 #include "macros.h"
 #include "state_test.h"
+#include "state_tests/init_state_test.h"
 #include "state_tests/state_tests.h"
 #include "vec_test.h"
 
