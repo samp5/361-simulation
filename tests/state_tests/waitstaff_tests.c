@@ -39,7 +39,7 @@ static int test_get_tables() {
 
     get_tables(w_i.id, &arr, &arr_len);
 
-    for (int j = 0; j < arr_len; j++) {
+    for (size_t j = 0; j < arr_len; j++) {
       FASSERT(w_i.table_ids->find(w_i.table_ids, (void *)(arr + j)) != -1,
               "Table id %d should be in Waiterstaff %d's table vector", arr[j],
               w_i.id);

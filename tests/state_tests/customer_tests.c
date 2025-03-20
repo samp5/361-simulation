@@ -63,13 +63,13 @@ static int test_nonexistent_customer() {
 }
 
 static void assign_customers_to_tables() {
-  int table_index = 0, customer_index = 0;
+  size_t table_index = 0, customer_index = 0;
   vector *customers = GLOBAL_STATE->customers;
   vector *tables = GLOBAL_STATE->tables;
 
   // Assign each customer to one table
   while (table_index < GLOBAL_STATE->tables->size &&
-         customer_index < GLOBAL_STATE->num_customers) {
+         customer_index < (size_t)GLOBAL_STATE->num_customers) {
 
     customer *c_i;
     customers->get_mut_at(customers, customer_index, (void **)&c_i);

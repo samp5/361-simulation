@@ -47,7 +47,7 @@ int dequeue(queue *q, int *element) {
 }
 
 int get_at(queue *q, int index, int *element) {
-  if (q == NULL || index >= q->_size) {
+  if (q == NULL || index >= (int)q->_size) {
     return -1;
   }
   size_t adj_index = (q->_front + index) % q->_capacity;
