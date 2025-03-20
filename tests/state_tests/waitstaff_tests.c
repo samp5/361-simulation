@@ -2,9 +2,22 @@
 #include "state_tests.h"
 
 extern state *GLOBAL_STATE;
+
+// get_tables
 static int test_get_tables();
 static int test_get_tables_non_existent();
 
+// seat
+
+// intuit_preference
+
+// take_order
+
+// pick_up_borsht
+
+// serve
+
+// clean_table
 void waitstaff_state_test_all() {
   TEST(test_get_tables);
   TEST(test_get_tables_non_existent);

@@ -57,7 +57,7 @@ void leave(customer_id id) {
   int locks = Global;
   take(locks);
 
-  LOG("Cutomer %d is trying to leave", id);
+  LOG("Cutomer %d is leaving", id);
 
   customer *target;
   if ((target = get_mut_customer(id)) == NULL) {
@@ -183,8 +183,6 @@ static void *customer_arrive_routine(void *arg) {
     BAIL_RET_RELEASE(NULL, "Customer %d was NULL", id);
   }
 
-  custy->borsht_eaten += 1;
-
   if (custy->current_status != NotArrived) {
     BAIL_RET_RELEASE(
         NULL,
@@ -194,6 +192,7 @@ static void *customer_arrive_routine(void *arg) {
   }
 
   add_customer_to_queue(custy->id);
+  GLOBAL_STATE->num_customers_arrived += 1;
 
   release(locks);
 

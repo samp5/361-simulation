@@ -12,10 +12,10 @@ static int test_get_wait() {
   size_t len;
   get_waiting_line(arr, &len);
 
-  FASSERT(len == GLOBAL_STATE->waitstaff_states->size,
+  FASSERT(len == GLOBAL_STATE->num_customers_arrived,
           "The size of the returned waiting line should have the same size as "
-          "the queue: Got %zu, expected %zu",
-          len, GLOBAL_STATE->waitstaff_states->size);
+          "the queue: Got %zu, expected %d",
+          len, GLOBAL_STATE->num_customers_arrived);
 
   return 0;
 }

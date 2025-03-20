@@ -38,4 +38,4 @@ run_tests: $(BUILD_DIR)/$(TEST_TARGET)
 .PHONY: clean
 clean:
 	rm -r $(BUILD_DIR)
-	rm log*.txt
+	rm logs/*

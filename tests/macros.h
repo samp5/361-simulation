@@ -5,6 +5,9 @@
 #include <stdlib.h>
 
 extern int WOULD_FAIL;
+extern int TEST_COUNT;
+extern int FAILED_COUNT;
+
 static char buf[1024];
 
 #ifndef COLORS
@@ -30,7 +33,9 @@ static char buf[1024];
 
 #define TEST(test_name)                                                        \
   do {                                                                         \
+    TEST_COUNT = TEST_COUNT + 1;                                               \
     if (test_name()) {                                                         \
+      FAILED_COUNT += 1;                                                       \
       printf(RED BOLD "  %s FAILED\n" RESET, #test_name);                      \
     } else {                                                                   \
       printf(GREEN BOLD "  %s PASSED\n" RESET, #test_name);                    \

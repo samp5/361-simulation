@@ -25,10 +25,11 @@ state *init_state(int num_customers, int num_tables, int num_waiter,
   // seating queue
   sim_state->seating_line = new_queue();
 
-#ifndef STAGGERED_ARRIVE
-  init_seating_line(sim_state);
-#else
+#ifdef STAGGERED_ARRIVE
   init_customer_arrivals(sim_state);
+#else
+  init_seating_line(sim_state);
+  sim_state->num_customers_arrived = num_customers;
 #endif
 
   // waitstaff collection

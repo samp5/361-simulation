@@ -6,15 +6,16 @@ extern state *GLOBAL_STATE;
 extern FILE *LOG_FILE;
 
 int WOULD_FAIL;
+int PASSED_ALL = 1;
 
 void inconsistent_state() { WOULD_FAIL = 1; }
 void reset() { WOULD_FAIL = 0; }
 
 void reset_state() {
-  // if (LOG_FILE != NULL) {
-  //   fclose(LOG_FILE);
-  //   LOG_FILE = NULL;
-  // }
+  if (LOG_FILE != NULL) {
+    fclose(LOG_FILE);
+    LOG_FILE = NULL;
+  }
   GLOBAL_STATE = init_state(
       GLOBAL_STATE->num_customers,
       GLOBAL_STATE->tables->len(GLOBAL_STATE->tables),
