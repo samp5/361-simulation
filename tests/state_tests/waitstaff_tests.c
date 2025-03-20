@@ -8,6 +8,12 @@ static int test_get_tables();
 static int test_get_tables_non_existent();
 
 // seat
+static int test_seat();
+static int test_seat_waitstaff_nonexistent();
+static int test_seat_customer_not_in_line();
+static int test_seat_customer_not_in_front();
+static int test_seat_table_occupied();
+static int test_seat_table_dirty();
 
 // intuit_preference
 
@@ -20,7 +26,21 @@ static int test_get_tables_non_existent();
 // clean_table
 void waitstaff_state_test_all() {
   TEST(test_get_tables);
+  reset_state();
   TEST(test_get_tables_non_existent);
+  reset_state();
+  TEST(test_seat);
+  reset_state();
+  TEST(test_seat_waitstaff_nonexistent);
+  reset_state();
+  TEST(test_seat_customer_not_in_line);
+  reset_state();
+  TEST(test_seat_customer_not_in_front);
+  reset_state();
+  TEST(test_seat_table_occupied);
+  reset_state();
+  TEST(test_seat_table_dirty);
+  reset_state();
 }
 
 static int test_get_tables() {
@@ -59,3 +79,11 @@ static int test_get_tables_non_existent() {
 
   return 0;
 }
+
+// seating tests
+static int test_seat() { return 0; }
+static int test_seat_waitstaff_nonexistent() { return 0; }
+static int test_seat_customer_not_in_line() { return 0; }
+static int test_seat_customer_not_in_front() { return 0; }
+static int test_seat_table_occupied() { return 0; }
+static int test_seat_table_dirty() { return 0; }

@@ -5,9 +5,16 @@ const int BORSHT_TYPES = 3;
 const int MAX_BORSHT_ORDER = 4;
 
 vector *init_waitstaff_states(int num_waiter, int num_tables);
+static void dealloc_waitstaff(state *s);
+
 vector *init_tables(int num_tables);
+static void dealloc_tables(state *s);
+
 vector *init_customers(int customers);
+
 kitchen init_kitchen_state(int);
+static void dealloc_kitchen_state(state *s);
+
 static void init_seating_line(state *);
 
 state *init_state(int num_customers, int num_tables, int num_waiter,
@@ -102,19 +109,28 @@ vector *init_waitstaff_states(int num_waiter, int num_tables) {
 
     // fill with appropriate table ids
     for (table_id i = start; i < start + tables_for_i; i++) {
-      table_id *id_i = malloc(sizeof(table_id));
-      *id_i = i;
-      waiter_i->table_ids->push(waiter_i->table_ids, (void *)id_i);
+      waiter_i->table_ids->push(waiter_i->table_ids, (void *)&i);
     }
 
     waitstaff_states->push(waitstaff_states,
                            (void *)waiter_i); // add this waiter
-    start = start + tables_for_i;             // increment our table_id
+    free(waiter_i);
+    start = start + tables_for_i; // increment our table_id
   }
 
   waitstaff_states->set_comparator(waitstaff_states, waitstaff_cmp);
 
   return waitstaff_states;
+}
+
+void dealloc_waitstaff(state *s) {
+  vector *waitstaff_v = s->waitstaff_states;
+  for (int i = 0; i < waitstaff_v->len(waitstaff_v); i++) {
+    waitstaff *w_i;
+    waitstaff_v->get_mut_at(waitstaff_v, i, (void **)&w_i);
+    w_i->table_ids->dealloc(&w_i->table_ids);
+  }
+  waitstaff_v->dealloc(&waitstaff_v);
 }
 
 /*
@@ -142,19 +158,24 @@ vector *init_tables(int num_tables) {
   table_id id_i = 0;
 
   for (int i = 0; i < num_tables; i++) {
-    table *table_i = malloc(sizeof(table));
-    table_i->current_status = Clean;
-    table_i->id = id_i;
+    table table_i;
+    table_i.current_status = Clean;
+    table_i.id = id_i;
     for (int i = 0; i < BORSHT_TYPES; i++) {
-      table_i->borsht_bowls[i] = 0;
+      table_i.borsht_bowls[i] = 0;
     }
     id_i = id_i + 1;
 
-    tables->push(tables, (void *)table_i);
+    tables->push(tables, (void *)&table_i);
   }
   tables->set_comparator(tables, table_cmp);
 
   return tables;
+}
+
+void dealloc_tables(state *s) {
+  vector *tables = s->tables;
+  tables->dealloc(&tables);
 }
 
 int customer_cmp(void *a, void *b) {
@@ -167,19 +188,24 @@ int customer_cmp(void *a, void *b) {
   }
 }
 
+void dealloc_customers(state *s) {
+  vector *customers = s->customers;
+  customers->dealloc(&customers);
+}
+
 vector *init_customers(int num_customers) {
 
   vector *customers = new_vector(sizeof(customer));
 
   for (int i = 0; i < num_customers; i++) {
-    customer *customer_i = malloc(sizeof(customer));
-    customer_i->id = i;
-    customer_i->preference = rand() % BORSHT_TYPES;
-    customer_i->current_status = NotArrived;
-    customer_i->borsht_eaten = 0;
-    customer_i->borsht_desired = (rand() % MAX_BORSHT_ORDER) + 1;
-    customer_i->table_id = -1;
-    customers->push(customers, customer_i);
+    customer customer_i;
+    customer_i.id = i;
+    customer_i.preference = rand() % BORSHT_TYPES;
+    customer_i.current_status = NotArrived;
+    customer_i.borsht_eaten = 0;
+    customer_i.borsht_desired = (rand() % MAX_BORSHT_ORDER) + 1;
+    customer_i.table_id = -1;
+    customers->push(customers, (void *)&customer_i);
   }
 
   customers->set_comparator(customers, customer_cmp);
@@ -201,6 +227,11 @@ kitchen init_kitchen_state(int num_cooks) {
   kitchen_state.num_cooks = num_cooks;
 
   return kitchen_state;
+}
+
+void dealloc_kitchen_state(state *s) {
+  vector *orders = s->kitchen_state.orders;
+  orders->dealloc(&orders);
 }
 
 void init_customer_arrivals(state *state) {
@@ -298,4 +329,15 @@ void dump_state(state *s) {
   }
   fprintf(f, "\n");
   fclose(f);
+}
+
+void dealloc_state(state **s) {
+  state *state = *s;
+  dealloc_customers(state);
+  state->seating_line->dealloc(&state->seating_line);
+  dealloc_waitstaff(state);
+  dealloc_tables(state);
+  dealloc_kitchen_state(state);
+  free(state);
+  *s = NULL;
 }

@@ -1,4 +1,3 @@
-#include "state_test.h"
 #include "macros.h"
 #include "state_tests/state_tests.h"
 #include <stdatomic.h>
@@ -16,11 +15,16 @@ void reset_state() {
     fclose(LOG_FILE);
     LOG_FILE = NULL;
   }
-  GLOBAL_STATE = init_state(
+
+  state *new_state = init_state(
       GLOBAL_STATE->num_customers,
       GLOBAL_STATE->tables->len(GLOBAL_STATE->tables),
       GLOBAL_STATE->waitstaff_states->len(GLOBAL_STATE->waitstaff_states),
       GLOBAL_STATE->kitchen_state.num_cooks);
+
+  dealloc_state(&GLOBAL_STATE);
+
+  GLOBAL_STATE = new_state;
 }
 
 void state_test_all() {

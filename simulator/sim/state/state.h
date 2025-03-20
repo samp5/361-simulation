@@ -99,5 +99,6 @@ void init_customer_arrivals(state *state);
 void delay_customer_arrival(customer_id id);
 void dump_state(state *s);
 void inconsistent_state();
+void dealloc_state(state **s);
 
 #endif // !STATE
