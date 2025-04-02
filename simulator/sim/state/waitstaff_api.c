@@ -113,6 +113,9 @@ void seat(waitstaff_id w_id, customer_id c_id, table_id t_id) {
   c->current_status = AtTable;
   t->current_status = Occupied;
 
+  LOG("Customer %d was just seated at Table %d by Waitstaff %d", c->id, t->id,
+      w_id);
+
   release(locks);
 }
 

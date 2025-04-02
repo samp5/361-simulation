@@ -15,6 +15,7 @@ static pthread_mutex_t global_tex = PTHREAD_MUTEX_INITIALIZER;
 void take(int locks) {
   if (locks == Global) {
     pthread_mutex_lock(&global_tex);
+    return;
   }
   if (Customer & locks) {
     pthread_mutex_lock(&customer_tex);
@@ -35,7 +36,7 @@ void take(int locks) {
 
 #define MUTEX_CHECK(tex, res)                                                  \
   do {                                                                         \
-    if (!pthread_mutex_trylock(&tex)) {                                        \
+    if (pthread_mutex_trylock(&tex) == 0) {                                    \
       pthread_mutex_unlock(&tex);                                              \
       res = 0;                                                                 \
     } else {                                                                   \

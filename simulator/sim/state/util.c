@@ -129,10 +129,10 @@ void remove_customer_from_queue(customer_id id) {
   queue *q = GLOBAL_STATE->seating_line;
 
   int locks = Queue | Customer;
-  if (check(locks)) {
+  if (!check(locks)) {
     PRINT_ERR(0,
-              "Queue and Customer mutex was not held on entering "
-              "add_customer_to_queue%s",
+              "Queue and Customer mutexes were not held on entering "
+              "remove_customer_from_queue%s",
               "\n");
   }
 
