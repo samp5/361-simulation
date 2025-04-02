@@ -2,14 +2,6 @@
 #ifndef DS_VEC
 #define DS_VEC
 
-// NOTE:
-// this vector implemenation should only store
-// HEAP allocated elements.
-//
-// Because the vector only stores *pointers* to it's elements
-// storing stack allocated variables in this vector is almost
-// guarenteed to produce undefined behavior.
-//
 // NOTE: If elements contain internal pointers, they are not freed
 // upon vector deallocation.
 //
@@ -28,6 +20,12 @@ typedef struct vector {
 
   /*
    * Push an element onto the back of the vector
+   *
+   * NOTE: This just memcpys the passed element into the internal array
+   *
+   * So, if the structure passed has internal pointers to structures
+   * that could be moved during reallocation (other vector elements or
+   * otherwise). This **will break**
    *
    * param: vec this
    *
