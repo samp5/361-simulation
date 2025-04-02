@@ -1,4 +1,5 @@
 #include "../macros.h"
+#include "../utils/utils.h"
 #include "state_tests.h"
 
 extern state *GLOBAL_STATE;
@@ -8,6 +9,7 @@ static int test_get_tables();
 static int test_get_tables_non_existent();
 
 // seat
+static int test_seat_one();
 static int test_seat();
 static int test_seat_waitstaff_nonexistent();
 static int test_seat_customer_not_in_line();
@@ -29,20 +31,23 @@ void waitstaff_state_test_all() {
   reset_state();
   TEST(test_get_tables_non_existent);
   reset_state();
+  TEST(test_seat_one);
+  reset_state();
   TEST(test_seat);
   reset_state();
-  TEST(test_seat_waitstaff_nonexistent);
-  reset_state();
-  TEST(test_seat_customer_not_in_line);
-  reset_state();
-  TEST(test_seat_customer_not_in_front);
-  reset_state();
-  TEST(test_seat_table_occupied);
-  reset_state();
-  TEST(test_seat_table_dirty);
-  reset_state();
+  // TEST(test_seat_waitstaff_nonexistent);
+  // reset_state();
+  // TEST(test_seat_customer_not_in_line);
+  // reset_state();
+  // TEST(test_seat_customer_not_in_front);
+  // reset_state();
+  // TEST(test_seat_table_occupied);
+  // reset_state();
+  // TEST(test_seat_table_dirty);
+  // reset_state();
 }
 
+// get_tables
 static int test_get_tables() {
   vector *ws = GLOBAL_STATE->waitstaff_states;
   if (ws->len(ws) == 0) {
@@ -74,14 +79,109 @@ static int test_get_tables_non_existent() {
     return 0;
   }
 
-  ASSERT_FAIL("Non existent waiter ID should cause inconsistent state",
+  ASSERT_FAIL("Nonexistent waiter ID should cause inconsistent state",
               get_tables, ws->len(ws), NULL, NULL);
 
   return 0;
 }
 
+static int test_seat_one() {
+  vector *ws = GLOBAL_STATE->waitstaff_states;
+  if (ws->len(ws) == 0)
+    return 0;
+
+  queue *line = GLOBAL_STATE->seating_line;
+  if (line->len(line) == 0)
+    return 0;
+
+  waitstaff *w = NULL;
+  // find the first valid waitstaff member with a table
+  for (int i = 0; i < ws->len(ws); i++) {
+    ws->get_mut_at(ws, i, (void **)&w);
+    if (w->table_ids->len(w->table_ids) > 0)
+      break;
+  }
+
+  // there are no waitstaff with tables, this is still technically a valid state
+  if (w == NULL) {
+    return 0;
+  }
+
+  // we have at least one waiter and one customer
+
+  // get the first customer in line
+  customer_id first;
+  line->peek(line, &first);
+
+  // get the first table
+  table_id t_id;
+  w->table_ids->get_at(w->table_ids, 0, (void *)&t_id);
+
+  // we should be able to seat them
+  ASSERT_VALID(
+      "Waitstaff should be able to seat the customer at the front of the line",
+      seat, w->id, first, t_id);
+
+  table *t = get_table(t_id);
+  FASSERT(t->current_status == Occupied,
+          "Table %d was just seated and so should be occupied", t_id);
+
+  customer *c = get_customer(first);
+  FASSERT(c->current_status == AtTable,
+          "Customer %d was just seated and so should have status AtTable",
+          c->id);
+  return 0;
+}
+
 // seating tests
-static int test_seat() { return 0; }
+static int test_seat() {
+  vector *ws = GLOBAL_STATE->waitstaff_states;
+  if (ws->len(ws) == 0)
+    return 0;
+
+  queue *line = GLOBAL_STATE->seating_line;
+  if (line->len(line) == 0)
+    return 0;
+
+  waitstaff *w = NULL;
+  // find the first valid waitstaff member with a table
+  for (int i = 0; i < ws->len(ws); i++) {
+    ws->get_mut_at(ws, i, (void **)&w);
+    if (w->table_ids->len(w->table_ids) > 0)
+      break;
+  }
+
+  // there are no waitstaff with tables, this is still technically a valid state
+  if (w == NULL) {
+    return 0;
+  }
+
+  // we have at least one waiter and one customer
+
+  // get the first customer in line
+  customer_id first;
+  line->peek(line, &first);
+
+  // get the first table
+  table_id t_id;
+  w->table_ids->get_at(w->table_ids, 0, (void *)&t_id);
+
+  // we should be able to seat them
+  ASSERT_VALID(
+      "Waitstaff should be able to seat the customer at the front of the line",
+      seat, w->id, first, t_id);
+
+  table *t = get_table(t_id);
+  FASSERT(t->current_status == Occupied,
+          "Table %d was just seated and so should be occupied", t_id);
+
+  customer *c = get_customer(first);
+  FASSERT(c->current_status == AtTable,
+          "Customer %d was just seated and so should have status AtTable",
+          c->id);
+  return 0;
+}
+
 static int test_seat_waitstaff_nonexistent() { return 0; }
 static int test_seat_customer_not_in_line() { return 0; }
 static int test_seat_customer_not_in_front() { return 0; }
