@@ -49,3 +49,44 @@ waitstaff *get_waitstaff(waitstaff_id id) {
 
   return target;
 }
+
+int get_first_available_table(table **tbl, waitstaff **wstf) {
+  vector *ws = GLOBAL_STATE->waitstaff_states;
+  if (ws->len(ws) == 0)
+    return -1;
+
+  waitstaff *w = *wstf;
+  table *t = *tbl;
+
+  // find the first waitstaff with an open table
+  for (int i = 0; i < ws->len(ws); i++) {
+    ws->get_mut_at(ws, i, (void **)&w);
+
+    // for each table for that waitstaff
+    for (int j = 0; j < w->table_ids->len(w->table_ids); j++) {
+
+      table_id t_id;
+      w->table_ids->get_at(w->table_ids, j, (void *)&t_id);
+      t = get_table(t_id);
+
+      // break out if the table is unoccupied
+      if (!(t->current_status & Occupied)) {
+        break;
+      }
+    }
+
+    // if we found an open table, break out!
+    if (t != NULL && !(t->current_status & Occupied)) {
+      break;
+    }
+  }
+
+  // we didn't find an empty table, this is still valid
+  if (t == NULL || t->current_status & Occupied) {
+    return -1;
+  }
+
+  *tbl = t;
+  *wstf = w;
+  return 0;
+}

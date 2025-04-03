@@ -56,8 +56,8 @@ void seat(waitstaff_id w_id, customer_id c_id, table_id t_id) {
 
   int locks = Global;
   take(locks);
-  LOG("Waitstaff member %d is trying to seat Customer %d at table %d", w_id,
-      c_id, t_id);
+  LOG("Waitstaff %d is trying to seat Customer %d at Table %d", w_id, c_id,
+      t_id);
 
   customer *c;
   if ((c = get_mut_customer(c_id)) == NULL) {

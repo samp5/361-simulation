@@ -37,7 +37,7 @@ int main() {
     printf(GREEN BOLD "\n-------------ALL %d TESTS PASSED-------------\n" RESET,
            TEST_COUNT);
   } else {
-    printf(RED BOLD "\n-------------%d TESTS FAILED-------------\n" RESET,
-           FAILED_COUNT);
+    printf(RED BOLD "\n-------------%d/%d TESTS FAILED-------------\n" RESET,
+           FAILED_COUNT, TEST_COUNT);
   }
 }
