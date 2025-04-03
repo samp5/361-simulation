@@ -129,6 +129,9 @@ void seat(waitstaff_id w_id, customer_id c_id, table_id t_id) {
  *  `borsht_type` representing the borsht type preferred by
  *  customer with `c_id`
  *
+ * Pitfalls:
+ *  1. Customer does not exist
+ *
  */
 borsht_type intuit_preference(customer_id c_id) {
   int locks = Global;
@@ -161,9 +164,59 @@ borsht_type intuit_preference(customer_id c_id) {
  * return by assignment:
  *  `quantitiy` - number of bowls requested by customer
  *
+ * Pitfalls:
+ *  1. Customer does not exist
+ *  2. Waitstaff does not exist
+ *  3. Customer is not seated
+ *  4. Customer already ordered
+ *  5. Customer is not in waitstaffs section
  */
 void take_order(waitstaff_id waitstaff_id, customer_id customer_id,
-                int *quantitiy);
+                int *quantitiy) {
+
+  int locks = Global;
+  take(locks);
+  LOG("Waitstaff %d is trying to take the order of Customer %d", waitstaff_id,
+      customer_id);
+
+  // 1. Customer does not exist
+  customer *c;
+  if ((c = get_mut_customer(customer_id)) == NULL) {
+    BAIL_AND_RELEASE("Customer %d was NULL", customer_id);
+  }
+
+  //  2. Waitstaff does not exist
+  waitstaff *w;
+  if ((w = get_mut_waitstaff(waitstaff_id)) == NULL) {
+    BAIL_AND_RELEASE("Waitstaff %d was NULL", customer_id);
+  }
+  // 3. Customer is not seated
+  if (!(c->current_status & AtTable)) {
+    BAIL_AND_RELEASE("Customer %d has not been seated!", c->id);
+  }
+
+  // 4. Customer already ordered
+  if (c->current_status & Ordered) {
+    BAIL_AND_RELEASE("Customer %d already ordered!", c->id);
+  }
+
+  // 5. Table is not in this waitstaffs section
+  int found = w->table_ids->find(w->table_ids, (void *)&c->table_id);
+  if (found == -1) {
+    BAIL_AND_RELEASE("Customer is at Table %d, but this table does not belong "
+                     "to waitstaff member %d!",
+                     c->table_id, w->id);
+  }
+
+  LOG("Waitstaff %d just took the order of Customer %d at Table %d, they want "
+      "%d bowls!",
+      w->id, c->id, c->table_id, c->borsht_desired);
+
+  *quantitiy = c->borsht_desired;
+  c->current_status = Ordered & AtTable;
+
+  release(locks);
+}
 
 /*
  * Pick up borsht from the kitchen

@@ -1,6 +1,7 @@
 #include "../macros.h"
 #include "state_tests.h"
 #include "utils/utils.h"
+#include <stdio.h>
 
 extern state *GLOBAL_STATE;
 
@@ -20,19 +21,34 @@ static int test_seat_table_occupied();
 static int test_seat_table_dirty();
 
 // intuit_preference
+static int test_intuit_pref();
+static int test_intuit_pref_nonexistent_customer();
 
 // take_order
+static int test_take_order();
+static int test_take_order_not_seated();
+static int test_take_order_not_in_section();
+static int test_take_order_already_ordered();
+static int test_take_order_nonexistent_customer();
+static int test_take_order_nonexistent_waitstaff();
 
 // pick_up_borsht
+// TODO:
 
 // serve
+// TODO:
 
 // clean_table
+// TODO:
+
 void waitstaff_state_test_all() {
+  // get tables
   TEST(test_get_tables);
   reset_state();
   TEST(test_get_tables_non_existent);
   reset_state();
+
+  // seat
   TEST(test_seat_one);
   reset_state();
   TEST(test_seat);
@@ -50,6 +66,26 @@ void waitstaff_state_test_all() {
   TEST(test_seat_table_occupied);
   reset_state();
   TEST(test_seat_table_dirty);
+  reset_state();
+
+  // intuit_preference
+  TEST(test_intuit_pref);
+  reset_state();
+  TEST(test_intuit_pref_nonexistent_customer);
+  reset_state();
+
+  // take order
+  TEST(test_take_order);
+  reset_state();
+  TEST(test_take_order_not_seated);
+  reset_state();
+  TEST(test_take_order_not_in_section);
+  reset_state();
+  TEST(test_take_order_already_ordered);
+  reset_state();
+  TEST(test_take_order_nonexistent_customer);
+  reset_state();
+  TEST(test_take_order_nonexistent_waitstaff);
   reset_state();
 }
 
@@ -147,6 +183,9 @@ static int test_seat_one() {
   FASSERT(c->current_status == AtTable,
           "Customer %d was just seated and so should have status AtTable",
           c->id);
+  FASSERT(c->table_id == t_id,
+          "Customer %d was just seated at Table %d but has Table %d in struct",
+          c->id, t_id, c->table_id);
   return 0;
 }
 
@@ -365,6 +404,21 @@ static int test_seat_table_dirty() {
 //   INTUIT PREFERENCE TESTS
 //
 //
+static int test_intuit_pref() {
+  for (int i = 0; i < GLOBAL_STATE->num_customers; i++) {
+    customer *c = get_customer(i);
+    borsht_type bt = intuit_preference(i);
+    FASSERT(c->preference == bt, "Expected %d == %d, got %d != %d",
+            c->preference, c->preference, c->preference, bt);
+  }
+  return 0;
+}
+
+static int test_intuit_pref_nonexistent_customer() {
+  ASSERT_FAIL("Expected failure on nonexistent customer", intuit_preference,
+              GLOBAL_STATE->num_customers);
+  return 0;
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -372,6 +426,115 @@ static int test_seat_table_dirty() {
 //   TAKE ORDER TESTS
 //
 //
+static int test_take_order() {
+  for (int i = 0; i < GLOBAL_STATE->num_customers; i++) {
+    table *t;
+    waitstaff *w;
+    if (get_first_available_table(&t, &w) != 0) {
+      return 0;
+    }
+    customer *c = get_customer(i);
+    ASSERT_VALID("Should be able to seat a customer", seat, w->id, c->id,
+                 t->id);
+
+    int order;
+    ASSERT_VALID("Should be able to take an order of seated customer",
+                 take_order, w->id, c->id, &order);
+    FASSERT(order == c->borsht_desired,
+            "Customer %d wanted %d but take order gave %d", c->id,
+            c->borsht_desired, order);
+  }
+  return 0;
+}
+
+static int test_take_order_not_seated() {
+  for (int i = 0; i < GLOBAL_STATE->num_customers; i++) {
+    table *t;
+    waitstaff *w;
+    if (get_first_available_table(&t, &w) != 0) {
+      return 0;
+    }
+    customer *c = get_customer(i);
+    int order;
+    ASSERT_FAIL(
+        "Should not be able to take an order of customer who is not seated",
+        take_order, w->id, c->id, &order);
+  }
+  return 0;
+}
+static int test_take_order_not_in_section() {
+  vector *ws = GLOBAL_STATE->waitstaff_states;
+
+  // we need at least two waitstaff for this test to make sense
+  if (ws->len(ws) < 2) {
+    return 0;
+  }
+
+  for (int i = 0; i < GLOBAL_STATE->num_customers; i++) {
+    table *t;
+    waitstaff *w;
+    if (get_first_available_table(&t, &w) != 0) {
+      return 0;
+    }
+    customer *c = get_customer(i);
+    ASSERT_VALID("Should be able to seat a customer", seat, w->id, c->id,
+                 t->id);
+
+    waitstaff_id other_w = (w->id + 1) % ws->len(ws);
+    int order;
+    ASSERT_FAIL(
+        "Customer not in proper section, should not be able to take order",
+        take_order, other_w, c->id, &order);
+  }
+  return 0;
+}
+static int test_take_order_already_ordered() {
+
+  for (int i = 0; i < GLOBAL_STATE->num_customers; i++) {
+    table *t;
+    waitstaff *w;
+    if (get_first_available_table(&t, &w) != 0) {
+      return 0;
+    }
+    customer *c = get_customer(i);
+    ASSERT_VALID("Should be able to seat a customer", seat, w->id, c->id,
+                 t->id);
+
+    int order;
+    ASSERT_VALID("Should be able to take an order of seated customer",
+                 take_order, w->id, c->id, &order);
+    ASSERT_FAIL(
+        "Should NOT be able to take an order of customer who already ordered",
+        take_order, w->id, c->id, &order);
+  }
+  return 0;
+}
+
+static int test_take_order_nonexistent_customer() {
+  table *t;
+  waitstaff *w;
+  if (get_first_available_table(&t, &w) != 0) {
+    return 0;
+  }
+  customer_id nonexistent = GLOBAL_STATE->num_customers;
+  int order;
+  ASSERT_FAIL("Nonexistent customer should fail", take_order, w->id,
+              nonexistent, &order);
+  return 0;
+}
+
+static int test_take_order_nonexistent_waitstaff() {
+  if (GLOBAL_STATE->num_customers <= 0)
+    return 0;
+
+  int order;
+  waitstaff_id nonexistent =
+      GLOBAL_STATE->waitstaff_states->len(GLOBAL_STATE->waitstaff_states);
+
+  ASSERT_FAIL("Nonexistent waitstaff should fail", take_order, nonexistent, 0,
+              &order);
+  return 0;
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 //
