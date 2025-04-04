@@ -226,7 +226,9 @@ void take_order(waitstaff_id waitstaff_id, customer_id customer_id,
  *  `quantitiy` - number of bowls
  *
  */
-void pick_up_borsht(waitstaff_id id, borsht_type borsht_type, int quantitiy);
+void pick_up_borsht(waitstaff_id id, borsht_type borsht_type, int quantitiy) {
+  // TODO:
+}
 
 /*
  * Pick up borsht from the kitchen
@@ -236,7 +238,9 @@ void pick_up_borsht(waitstaff_id id, borsht_type borsht_type, int quantitiy);
  *  `borsht_type` - type of borsht to serve
  */
 void serve(waitstaff_id waitstaff_id, table_id table_id,
-           borsht_type borsht_type);
+           borsht_type borsht_type) {
+  // TODO:
+}
 
 /*
  * Clean up table
@@ -244,4 +248,6 @@ void serve(waitstaff_id waitstaff_id, table_id table_id,
  * params:
  *  `table_id` - table to clean
  */
-void clean_table(waitstaff_id w_id, table_id table_id);
+void clean_table(waitstaff_id w_id, table_id table_id) {
+  // TODO:
+}

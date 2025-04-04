@@ -9,8 +9,7 @@ static int test_waitstaff_many();
 static int test_waitstaff_many_unbalanced();
 static int test_customers_empty();
 static int test_customers_single();
-
-extern const int BORSHT_TYPES;
+extern const int NUM_BORSHT_TYPE;
 
 void init_state_test_all() {
   TEST(test_state_empty);
@@ -44,10 +43,7 @@ static int test_state_empty() {
   ASSERT(s->tables->len(s->tables) == 0, "tables should be empty");
 
   // kitchen
-  ASSERT(s->kitchen_state.orders->len(s->kitchen_state.orders) == 0,
-         "there should be no orders");
-
-  for (int i = 0; i < BORSHT_TYPES; i++) {
+  for (int i = 0; i < NUM_BORSHT_TYPE; i++) {
     ASSERT(s->kitchen_state.prepared_bowls[i] == 0,
            "all prepared BORSHT_TYPES should be 0");
   }
@@ -68,7 +64,7 @@ static int test_waitstaff_single() {
          "vector should contain element at index 0");
   ASSERT(w1.id == 0, "first waiter should have id 0");
   ASSERT(w1.table_ids->len(w1.table_ids) == 1, "waiter should have 1 table");
-  for (int i = 0; i < BORSHT_TYPES; i++) {
+  for (int i = 0; i < NUM_BORSHT_TYPE; i++) {
     ASSERT(w1.carrying[i] == 0,
            "initial carrying of all BORSHT_TYPES should be 0");
   }
@@ -99,7 +95,7 @@ static int test_waitstaff_many() {
       start++;
     }
 
-    for (int j = 0; j < BORSHT_TYPES; j++) {
+    for (int j = 0; j < NUM_BORSHT_TYPE; j++) {
       ASSERT(w_i.carrying[j] == 0,
              "initial carrying of all BORSHT_TYPES should be 0");
     }
@@ -122,12 +118,11 @@ static int test_waitstaff_many_unbalanced() {
 
   for (int j = 0; j < 6; j++) {
 
-    table t_j;
+    table_id t_j;
 
     FASSERT(w_i.table_ids->get_at(w_i.table_ids, j, (void *)&t_j) == 0,
             "waiter %d should have table at index %d", 0, j);
-    FASSERT(t_j.id == start, "table should have id %d, got %d", start, t_j.id);
-    FASSERT(t_j.current_status == Clean, "table id %d should be Clean", start);
+    FASSERT(t_j == start, "table should have id %d, got %d", start, t_j);
 
     start++;
   }
@@ -153,7 +148,7 @@ static int test_waitstaff_many_unbalanced() {
       start++;
     }
 
-    for (int j = 0; j < BORSHT_TYPES; j++) {
+    for (int j = 0; j < NUM_BORSHT_TYPE; j++) {
       ASSERT(w_i.carrying[j] == 0,
              "initial carrying of all BORSHT_TYPES should be 0");
     }
@@ -179,7 +174,7 @@ static int test_customers_single() {
          "Customer should want at least one bowl of borst");
   ASSERT(c.current_status == NotArrived,
          "Customer should only have status NotArrived");
-  ASSERT(c.preference >= 0 && c.preference < BORSHT_TYPES,
+  ASSERT(c.preference >= 0 && c.preference < NUM_BORSHT_TYPE,
          "Customer should have a valid borst preference");
 
   customer dummy;

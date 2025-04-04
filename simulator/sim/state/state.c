@@ -1,8 +1,8 @@
 #include "state.h"
 #include <stdio.h>
 #include <stdlib.h>
-const int BORSHT_TYPES = 3;
 const int MAX_BORSHT_ORDER = 4;
+const int NUM_BORSHT_TYPE = 3;
 
 vector *init_waitstaff_states(int num_waiter, int num_tables);
 static void dealloc_waitstaff(state *s);
@@ -13,7 +13,6 @@ static void dealloc_tables(state *s);
 vector *init_customers(int customers);
 
 kitchen init_kitchen_state(int);
-static void dealloc_kitchen_state(state *s);
 
 static void init_seating_line(state *);
 
@@ -99,8 +98,9 @@ vector *init_waitstaff_states(int num_waiter, int num_tables) {
     waitstaff *waiter_i = malloc(sizeof(waitstaff));
 
     // set waiters params
-    waiter_i->id = i;                        // id
-    for (int b = 0; b < BORSHT_TYPES; b++) { // carrying nothing
+    waiter_i->id = i; // id
+    waiter_i->carrying = malloc(sizeof(int) * NUM_BORSHT_TYPE);
+    for (int b = 0; b < NUM_BORSHT_TYPE; b++) { // carrying nothing
       waiter_i->carrying[b] = 0;
     }
 
@@ -161,7 +161,8 @@ vector *init_tables(int num_tables) {
     table table_i;
     table_i.current_status = Clean;
     table_i.id = id_i;
-    for (int i = 0; i < BORSHT_TYPES; i++) {
+    table_i.borsht_bowls = malloc(sizeof(int) * NUM_BORSHT_TYPE);
+    for (int i = 0; i < NUM_BORSHT_TYPE; i++) {
       table_i.borsht_bowls[i] = 0;
     }
     id_i = id_i + 1;
@@ -200,7 +201,7 @@ vector *init_customers(int num_customers) {
   for (int i = 0; i < num_customers; i++) {
     customer customer_i;
     customer_i.id = i;
-    customer_i.preference = rand() % BORSHT_TYPES;
+    customer_i.preference = rand() % NUM_BORSHT_TYPE;
     customer_i.current_status = NotArrived;
     customer_i.borsht_eaten = 0;
     customer_i.borsht_desired = (rand() % MAX_BORSHT_ORDER) + 1;
@@ -216,22 +217,17 @@ vector *init_customers(int num_customers) {
 kitchen init_kitchen_state(int num_cooks) {
   // kitchen_state
   kitchen kitchen_state;
+  kitchen_state.prepared_bowls = malloc(sizeof(int) * NUM_BORSHT_TYPE);
 
   // set all prepared_bowls  to zero
-  for (int i = 0; i < BORSHT_TYPES; i++) {
+  for (int i = 0; i < NUM_BORSHT_TYPE; i++) {
     kitchen_state.prepared_bowls[i] = 0;
   }
 
   // no current orders
-  kitchen_state.orders = new_vector(sizeof(order));
   kitchen_state.num_cooks = num_cooks;
 
   return kitchen_state;
-}
-
-void dealloc_kitchen_state(state *s) {
-  vector *orders = s->kitchen_state.orders;
-  orders->dealloc(&orders);
 }
 
 void init_customer_arrivals(state *state) {
@@ -288,8 +284,12 @@ void dump_state(state *s) {
   for (int i = 0; i < s->waitstaff_states->len(s->waitstaff_states); i++) {
     waitstaff w_i;
     s->waitstaff_states->get_at(s->waitstaff_states, i, (void *)&w_i);
-    fprintf(f, "    ID: %-3d Carrying: [%-1d,%-1d,%-1d]\n", w_i.id,
-            w_i.carrying[0], w_i.carrying[1], w_i.carrying[2]);
+
+    fprintf(f, "    ID: %-3d Carrying: [ ", w_i.id);
+    for (int i = 0; i < NUM_BORSHT_TYPE; i++) {
+      fprintf(f, "%d: %-1d ", i, w_i.carrying[i]);
+    }
+    fprintf(f, "]\n");
     fprintf(f, "    Tables:");
     for (int j = 0; j < w_i.table_ids->len(w_i.table_ids); j++) {
       if (j % 30 == 0) {
@@ -313,20 +313,13 @@ void dump_state(state *s) {
   }
 
   fprintf(f, "  Kitchen:\n");
-  fprintf(
-      f, "    Ready: [%-1d,%-1d,%-1d]\n", s->kitchen_state.prepared_bowls[0],
-      s->kitchen_state.prepared_bowls[1], s->kitchen_state.prepared_bowls[2]);
 
-  fprintf(f, "    Orders:");
-  for (int i = 0; i < s->kitchen_state.orders->len(s->kitchen_state.orders);
-       i++) {
-    if (i % 30 == 0) {
-      fprintf(f, "\n    ");
-    }
-    order o_i;
-    s->kitchen_state.orders->get_at(s->kitchen_state.orders, i, (void *)&o_i);
-    fprintf(f, "    Type: %-2d Quantity: %-3d", o_i.type, o_i.quantity);
+  fprintf(f, "    Ready: [ ");
+  for (int i = 0; i < NUM_BORSHT_TYPE; i++) {
+    fprintf(f, "%d: %-1d ", i, s->kitchen_state.prepared_bowls[i]);
   }
+  fprintf(f, "]\n");
+
   fprintf(f, "\n");
   fclose(f);
 }
@@ -337,7 +330,6 @@ void dealloc_state(state **s) {
   state->seating_line->dealloc(&state->seating_line);
   dealloc_waitstaff(state);
   dealloc_tables(state);
-  dealloc_kitchen_state(state);
   free(state);
   *s = NULL;
 }

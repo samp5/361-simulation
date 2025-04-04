@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <sys/types.h>
+extern const int NUM_BORSHT_TYPE;
 
 typedef int16_t table_id;
 typedef int customer_id;
@@ -118,6 +119,10 @@ void clean_table(waitstaff_id w_id, table_id table_id);
 
 /*
  * Prepare some borsht
+ *
+ * When this function returns, the requested borsht is ready to go out!
+ * (Waitstaff can pick up this borsht order any time after this function
+ * returns)
  *
  * params:
  *  `borsht_type` - type of borsht

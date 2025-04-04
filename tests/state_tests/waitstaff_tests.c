@@ -462,6 +462,7 @@ static int test_take_order_not_seated() {
   }
   return 0;
 }
+
 static int test_take_order_not_in_section() {
   vector *ws = GLOBAL_STATE->waitstaff_states;
 
@@ -488,6 +489,7 @@ static int test_take_order_not_in_section() {
   }
   return 0;
 }
+
 static int test_take_order_already_ordered() {
 
   for (int i = 0; i < GLOBAL_STATE->num_customers; i++) {

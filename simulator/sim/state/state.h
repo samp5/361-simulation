@@ -36,13 +36,13 @@ typedef enum table_status {
 typedef struct table_state {
   table_id id;                 // id of the table
   table_status current_status; // status of the table
-  int borsht_bowls[3];         // the number of prepared bowls indexed by type
+  int *borsht_bowls;           // the number of prepared bowls indexed by type
 } table;
 
 typedef struct waitstaff_state {
   waitstaff_id id;
-  borsht_type carrying[3]; // number of each type of borsht_type that this
-                           // waiter is carrying
+  int *carrying;     // number of each type of borsht_type
+                     // that this waiter is carrying
   vector *table_ids; // a collection of tables_ids that are to be managaed by
                      // this member of wait staff
 } waitstaff;
@@ -56,14 +56,9 @@ typedef struct customer_state {
   int borsht_desired;
 } customer;
 
-typedef struct order {
-  borsht_type type; // type of borsht
-  int quantity;     // number of this type
-} order;
-
 typedef struct kitchen_state {
-  int prepared_bowls[3]; // the number of prepared bowls indexed by type
-  vector *orders;        // a vector of orders (see type order)
+  int *prepared_bowls; // the number of prepared bowls indexed
+                       // by type
   int num_cooks;
 } kitchen;
 
