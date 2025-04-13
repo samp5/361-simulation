@@ -178,6 +178,9 @@ static int test_seat_one() {
   table *t = get_table(t_id);
   FASSERT(t->current_status == Occupied,
           "Table %d was just seated and so should be occupied", t_id);
+  FASSERT(t->customer_id == first,
+          "Table %d was just seated and should have customer_id %d", t_id,
+          first);
 
   customer *c = get_customer(first);
   FASSERT(c->current_status == AtTable,
@@ -215,6 +218,9 @@ static int test_seat() {
 
       FASSERT(t->current_status == Occupied,
               "Table %d was just seated and so should be occupied", t->id);
+      FASSERT(t->customer_id == first,
+              "Table %d was just seated and should have customer_id %d", t->id,
+              first);
 
       customer *c = get_customer(first);
       FASSERT(c->current_status == AtTable,

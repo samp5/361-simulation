@@ -37,6 +37,8 @@ typedef struct table_state {
   table_id id;                 // id of the table
   table_status current_status; // status of the table
   int *borsht_bowls;           // the number of prepared bowls indexed by type
+  customer_id customer_id; // id of the customer who is sitting here (only valid
+                           // if status is occupied)
 } table;
 
 typedef struct waitstaff_state {
@@ -81,6 +83,11 @@ typedef struct state {
 
   // kitchen state
   struct kitchen_state kitchen_state;
+
+  int *bowls_ordered;  // number of bowls of borsht ordered
+                       // indexed by borsht_type
+  int *bowls_prepared; // number of bowls of borsht prepared
+                       // indexed by borsht_type
 
 } state;
 

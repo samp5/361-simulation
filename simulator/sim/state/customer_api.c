@@ -87,6 +87,12 @@ void leave(customer_id id) {
 
 /*
  * Eat borsht
+ *
+ * Pitfalls:
+ * 1. Cutomer does not exist
+ * 2. Customer is already eating
+ * 3. Customer is not waiting for food  (not AtTable & Ordered)
+ * 4. Customer is already full
  */
 void eat(customer_id id) {
   int locks = Global;
@@ -94,16 +100,19 @@ void eat(customer_id id) {
 
   LOG("Cutomer %d trying to eat", id);
 
+  // 1. Cutomer does not exist
   customer *target;
   if ((target = get_mut_customer(id)) == NULL) {
     BAIL_AND_RELEASE("Customer %d was NULL", id);
   }
 
+  // 2. Customer is already eating
   if (is_eating(target->current_status)) {
     BAIL_AND_RELEASE("Customer %d tried to eat but is already busy eating!",
                      id);
   }
 
+  // 3. Customer is not waiting for food  (not AtTable & Ordered)
   if (!is_waiting_for_food(target->current_status)) {
     BAIL_AND_RELEASE(
         "Customer %d was not wating for food. A customer needs to be at a "
@@ -111,6 +120,7 @@ void eat(customer_id id) {
         id);
   }
 
+  // 4. Customer is already full
   if (target->borsht_eaten >= target->borsht_desired) {
     BAIL_AND_RELEASE(
         "Customer %d is trying to eat borsht, it's the kind they like but they "
@@ -120,7 +130,9 @@ void eat(customer_id id) {
 
   table *target_table;
   if ((target_table = get_mut_table(target->table_id)) == NULL) {
-    BAIL_AND_RELEASE("Target table %d was NULL", id);
+    BAIL_AND_RELEASE("ERROR IN INTERNAL DATASTRUCTURE: REPORT TO PROFESSOR: "
+                     "Target table %d was NULL",
+                     id);
   }
 
   if (target_table->borsht_bowls[target->preference] != 1) {

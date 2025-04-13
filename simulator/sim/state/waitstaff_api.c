@@ -112,6 +112,7 @@ void seat(waitstaff_id w_id, customer_id c_id, table_id t_id) {
   c->table_id = t->id;
   c->current_status = AtTable;
   t->current_status = Occupied;
+  t->customer_id = c->id;
 
   LOG("Customer %d was just seated at Table %d by Waitstaff %d", c->id, t->id,
       w_id);
@@ -131,6 +132,7 @@ void seat(waitstaff_id w_id, customer_id c_id, table_id t_id) {
  *
  * Pitfalls:
  *  1. Customer does not exist
+ *  2. Customer has not arrived
  *
  */
 borsht_type intuit_preference(customer_id c_id) {
@@ -188,7 +190,7 @@ void take_order(waitstaff_id waitstaff_id, customer_id customer_id,
   //  2. Waitstaff does not exist
   waitstaff *w;
   if ((w = get_mut_waitstaff(waitstaff_id)) == NULL) {
-    BAIL_AND_RELEASE("Waitstaff %d was NULL", customer_id);
+    BAIL_AND_RELEASE("Waitstaff %d was NULL", waitstaff_id);
   }
   // 3. Customer is not seated
   if (!(c->current_status & AtTable)) {
@@ -215,6 +217,8 @@ void take_order(waitstaff_id waitstaff_id, customer_id customer_id,
   *quantitiy = c->borsht_desired;
   c->current_status = Ordered & AtTable;
 
+  GLOBAL_STATE->bowls_ordered[c->preference] += c->borsht_desired;
+
   release(locks);
 }
 
@@ -225,21 +229,138 @@ void take_order(waitstaff_id waitstaff_id, customer_id customer_id,
  *  `borsht_type` - type of borsht to pick up
  *  `quantitiy` - number of bowls
  *
+ *  Pitfalls:
+ *  1. Waitstaff does not exist
+ *  2. The borsht_type is not valid
+ *  3. The kitchen does not have this many bowls ready of specified type
+ *
  */
 void pick_up_borsht(waitstaff_id id, borsht_type borsht_type, int quantitiy) {
-  // TODO:
+  int locks = Global;
+  take(locks);
+  LOG("Waitstaff %d is trying to pick up %d bowls of type %d from the kitchen",
+      id, quantitiy, borsht_type);
+
+  //  1. Waitstaff does not exist
+  waitstaff *w;
+  if ((w = get_mut_waitstaff(id)) == NULL) {
+    BAIL_AND_RELEASE("Waitstaff %d was NULL", id);
+  }
+
+  if (borsht_type < 0 || borsht_type >= NUM_BORSHT_TYPE) {
+    BAIL_AND_RELEASE(
+        "Invalid Borsht type %d, expexected to between %d and %d (inclusive)",
+        borsht_type, 0, NUM_BORSHT_TYPE - 1);
+  }
+
+  kitchen *k = &GLOBAL_STATE->kitchen_state;
+  if (k->prepared_bowls[borsht_type] < quantitiy) {
+    BAIL_AND_RELEASE("Waitstaff %d tried to pick up %d bowls of type %d but "
+                     "the kitchen only has %d bowls ready!",
+                     id, quantitiy, borsht_type,
+                     k->prepared_bowls[borsht_type]);
+  }
+
+  // move the borsht from kitchen to waitstaff tray!
+  k->prepared_bowls[borsht_type] -= quantitiy;
+  w->carrying[borsht_type] += quantitiy;
+
+  release(locks);
 }
 
 /*
- * Pick up borsht from the kitchen
+ * Serve borsht to a table
  *
  * params:
  *  `table_id` - table to serve to
  *  `borsht_type` - type of borsht to serve
+ *
+ * Pitfalls:
+ * 1. Table does not exist
+ * 2. Waitstaff does not exist
+ * 3. Table is not in waitstaff's section
+ * 4. Table is not occupied
+ * 5. borsht_type is not valid
+ * 6. Waitstaff is not carrying that type of borsht
+ * 7. Wrong type of borsht
+ * 8. Customer at table is eating
+ * 9. Customer is full
  */
 void serve(waitstaff_id waitstaff_id, table_id table_id,
            borsht_type borsht_type) {
-  // TODO:
+  int locks = Global;
+  take(locks);
+  LOG("Waitstaff %d is trying to serve a bowl of type %d to table %d",
+      waitstaff_id, borsht_type, table_id);
+
+  // 1. Table does not exist
+  table *t;
+  if ((t = get_mut_table(table_id)) == NULL) {
+    BAIL_AND_RELEASE("Table %d was NULL", table_id);
+  }
+
+  //  2. Waitstaff does not exist
+  waitstaff *w;
+  if ((w = get_mut_waitstaff(waitstaff_id)) == NULL) {
+    BAIL_AND_RELEASE("Waitstaff %d was NULL", waitstaff_id);
+  }
+
+  // 3. Table is not in waitstaffs section
+  if (w->table_ids->find(w->table_ids, (void *)&table_id) == -1) {
+    BAIL_AND_RELEASE("Table %d is not in Waitstaff %d's section", table_id,
+                     waitstaff_id);
+  }
+
+  // 4. Table is not occupied
+  if (t->current_status != Occupied) {
+    BAIL_AND_RELEASE("Table %d is not occupied!", table_id);
+  }
+
+  // 5. borsht_type is invalid
+  if (borsht_type < 0 || borsht_type >= NUM_BORSHT_TYPE) {
+    BAIL_AND_RELEASE(
+        "Invalid Borsht type %d, expexected to between %d and %d (inclusive)",
+        borsht_type, 0, NUM_BORSHT_TYPE - 1);
+  }
+
+  // 6. Waitstaff is not carrying that type of borsht
+  if (w->carrying[borsht_type] < 1) {
+    BAIL_AND_RELEASE("Waitstaff %d was going to serve type %d to table %d, but "
+                     "is carrying %d of that type! ",
+                     waitstaff_id, borsht_type, table_id, w->carrying[0]);
+  }
+
+  customer *c = get_mut_customer(t->customer_id);
+
+  // 7. Wrong type of borsht
+  if (c->preference != borsht_type) {
+    BAIL_AND_RELEASE("Waitstaff %d was going to serve type %d to table %d "
+                     "(where customer %d is) but "
+                     "customer %d want type %d! ",
+                     waitstaff_id, borsht_type, table_id, t->customer_id,
+                     t->customer_id, c->preference);
+  }
+  // 8. Customer at table is eating
+  if (c->current_status & Eating) {
+    BAIL_AND_RELEASE("Waitstaff %d was going to serve type %d to table %d "
+                     "(where customer %d is) but "
+                     "customer %d is currently eating! DON'T EMBARRESS THEM.",
+                     waitstaff_id, borsht_type, table_id, t->customer_id,
+                     t->customer_id);
+  }
+  // 9. Customer is full
+  if (c->borsht_desired == c->borsht_eaten) {
+    BAIL_AND_RELEASE("Waitstaff %d was going to serve type %d to table %d "
+                     "(where customer %d is) but "
+                     "customer %d is already full!",
+                     waitstaff_id, borsht_type, table_id, t->customer_id,
+                     t->customer_id);
+  }
+
+  t->borsht_bowls[borsht_type] += 1;
+  w->carrying[borsht_type] -= 1;
+
+  release(locks);
 }
 
 /*
@@ -247,7 +368,42 @@ void serve(waitstaff_id waitstaff_id, table_id table_id,
  *
  * params:
  *  `table_id` - table to clean
+ *
+ *  Pitfalls:
+ *  1. Waitstaff does not exist
+ *  2. Table does not exist
+ *  3. Table is not dirty
  */
-void clean_table(waitstaff_id w_id, table_id table_id) {
-  // TODO:
+void clean_table(waitstaff_id waitstaff_id, table_id table_id) {
+  int locks = Global;
+  take(locks);
+  LOG("Waitstaff %d is trying to clean table %d", waitstaff_id, table_id);
+  // 1. Table does not exist
+  table *t;
+  if ((t = get_mut_table(table_id)) == NULL) {
+    BAIL_AND_RELEASE("Table %d was NULL", table_id);
+  }
+
+  //  2. Waitstaff does not exist
+  waitstaff *w;
+  if ((w = get_mut_waitstaff(waitstaff_id)) == NULL) {
+    BAIL_AND_RELEASE("Waitstaff %d was NULL", waitstaff_id);
+  }
+
+  switch (t->current_status) {
+  case Clean:
+    BAIL_AND_RELEASE(
+        "Waitstaff %d trying to clean Table %d but Table %d was Clean!",
+        waitstaff_id, table_id, table_id);
+  case Occupied:
+    BAIL_AND_RELEASE(
+        "Waitstaff %d trying to clean Table %d but Table %d was Occupied!",
+        waitstaff_id, table_id, table_id);
+  case Dirty:
+    break;
+  }
+
+  t->current_status = Clean;
+
+  release(locks);
 }

@@ -84,6 +84,7 @@ borsht_type intuit_preference(customer_id c_id);
 void take_order(waitstaff_id waitstaff_id, customer_id customer_id,
                 int *quantitiy);
 
+// TODO:
 /*
  * Pick up borsht from the kitchen
  *
@@ -94,6 +95,7 @@ void take_order(waitstaff_id waitstaff_id, customer_id customer_id,
  */
 void pick_up_borsht(waitstaff_id id, borsht_type borsht_type, int quantitiy);
 
+// TODO:
 /*
  * Pick up borsht from the kitchen
  *
@@ -104,6 +106,7 @@ void pick_up_borsht(waitstaff_id id, borsht_type borsht_type, int quantitiy);
 void serve(waitstaff_id waitstaff_id, table_id table_id,
            borsht_type borsht_type);
 
+// TODO:
 /*
  * Clean up table
  *
@@ -117,6 +120,7 @@ void clean_table(waitstaff_id w_id, table_id table_id);
 // Cook API
 //
 
+// TODO:
 /*
  * Prepare some borsht
  *

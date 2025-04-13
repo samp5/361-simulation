@@ -18,3 +18,5 @@ void get_waiting_line(customer_id **arr, size_t *len) {
   *len = q->len(q);
   release(locks);
 }
+
+int types_of_borsht() { return NUM_BORSHT_TYPE; }

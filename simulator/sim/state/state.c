@@ -1,7 +1,8 @@
 #include "state.h"
 #include <stdio.h>
 #include <stdlib.h>
-const int MAX_BORSHT_ORDER = 4;
+#include <string.h>
+const int MAX_BORSHT_ORDER = 8;
 const int NUM_BORSHT_TYPE = 3;
 
 vector *init_waitstaff_states(int num_waiter, int num_tables);
@@ -46,6 +47,12 @@ state *init_state(int num_customers, int num_tables, int num_waiter,
 
   // kitchen state
   sim_state->kitchen_state = init_kitchen_state(num_cooks);
+
+  sim_state->bowls_ordered = malloc(sizeof(int) * NUM_BORSHT_TYPE);
+  memset(sim_state->bowls_ordered, 0, NUM_BORSHT_TYPE * sizeof(int));
+
+  sim_state->bowls_prepared = malloc(sizeof(int) * NUM_BORSHT_TYPE);
+  memset(sim_state->bowls_prepared, 0, NUM_BORSHT_TYPE * sizeof(int));
 
   return sim_state;
 }

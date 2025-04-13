@@ -47,6 +47,17 @@ static int test_state_empty() {
     ASSERT(s->kitchen_state.prepared_bowls[i] == 0,
            "all prepared BORSHT_TYPES should be 0");
   }
+
+  // bowls prepared
+  for (int i = 0; i < NUM_BORSHT_TYPE; i++) {
+    ASSERT(s->bowls_prepared[i] == 0, "all prepared BORSHT_TYPES should be 0");
+  }
+
+  // bowls ordered
+  for (int i = 0; i < NUM_BORSHT_TYPE; i++) {
+    ASSERT(s->bowls_ordered[i] == 0, "all prepared BORSHT_TYPES should be 0");
+  }
+
   return 0;
 }
 
