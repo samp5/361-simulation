@@ -52,5 +52,8 @@ void prepare(int borsht_type, int quantitiy) {
   GLOBAL_STATE->kitchen_state.prepared_bowls[borsht_type] += quantitiy;
   GLOBAL_STATE->bowls_prepared[borsht_type] += quantitiy;
 
+  LOG("The kitchen is done preparing %d bowls borsht type %d", quantitiy,
+      borsht_type);
+
   release(locks);
 }

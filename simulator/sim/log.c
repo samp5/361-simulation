@@ -2,10 +2,12 @@
 #include "log_macros.h"
 #include "state/state.h"
 #include <fcntl.h>
+#include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
 FILE *LOG_FILE = NULL;
 extern state *GLOBAL_STATE;
+pthread_mutex_t log_tex = PTHREAD_MUTEX_INITIALIZER;
 
 void log_init() {
   static int run = 0;

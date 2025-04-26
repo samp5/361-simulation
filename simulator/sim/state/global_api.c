@@ -1,4 +1,5 @@
 #include "../../sim.h"
+#include "../log_macros.h"
 #include "state.h"
 #include "sync.h"
 #include <stdlib.h>
@@ -15,6 +16,7 @@ void get_waiting_line(customer_id **arr, size_t *len) {
     q->get_at(q, i, q_arr + i);
   }
 
+  *arr = q_arr;
   *len = q->len(q);
   release(locks);
 }

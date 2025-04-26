@@ -111,7 +111,7 @@ void seat(waitstaff_id w_id, customer_id c_id, table_id t_id) {
   remove_customer_from_queue(c_id);
   c->table_id = t->id;
   c->current_status = AtTable;
-  t->current_status = Occupied;
+  t->current_status |= Occupied;
   t->customer_id = c->id;
 
   LOG("Customer %d was just seated at Table %d by Waitstaff %d", c->id, t->id,
@@ -215,7 +215,7 @@ void take_order(waitstaff_id waitstaff_id, customer_id customer_id,
       w->id, c->id, c->table_id, c->borsht_desired);
 
   *quantitiy = c->borsht_desired;
-  c->current_status = Ordered & AtTable;
+  c->current_status = Ordered | AtTable;
 
   GLOBAL_STATE->bowls_ordered[c->preference] += c->borsht_desired;
 
@@ -264,6 +264,8 @@ void pick_up_borsht(waitstaff_id id, borsht_type borsht_type, int quantitiy) {
   // move the borsht from kitchen to waitstaff tray!
   k->prepared_bowls[borsht_type] -= quantitiy;
   w->carrying[borsht_type] += quantitiy;
+  LOG("Waitstaff %d picked up  %d bowls of type %d from the kitchen", id,
+      quantitiy, borsht_type);
 
   release(locks);
 }
@@ -359,6 +361,9 @@ void serve(waitstaff_id waitstaff_id, table_id table_id,
 
   t->borsht_bowls[borsht_type] += 1;
   w->carrying[borsht_type] -= 1;
+
+  LOG("Waitstaff %d served a bowl of type %d to table %d", waitstaff_id,
+      borsht_type, table_id);
 
   release(locks);
 }

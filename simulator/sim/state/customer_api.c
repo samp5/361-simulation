@@ -81,6 +81,7 @@ void leave(customer_id id) {
   // set status to left
   target->current_status = Left;
   target->table_id = -1;
+  GLOBAL_STATE->num_customers_left += 1;
 
   release(locks);
 }

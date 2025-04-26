@@ -1,5 +1,12 @@
-void *run_wait_staff();
+#include "../sim.h"
+#include <pthread.h>
+#include <stdio.h>
+#include <stdlib.h>
 
-void *run_cook_staff();
+void initializer();
 
-void *run_customer();
+void wait_staff_controller(waitstaff_id id);
+
+void cook_controller();
+
+void customer_controller(customer_id id);

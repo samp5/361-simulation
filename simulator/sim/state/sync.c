@@ -1,5 +1,6 @@
 
 #include "sync.h"
+#include "../log_macros.h"
 #include <pthread.h>
 
 static pthread_mutex_t customer_tex = PTHREAD_MUTEX_INITIALIZER;

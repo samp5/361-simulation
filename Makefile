@@ -1,6 +1,6 @@
 CC := gcc
-
-CFLAGS = -Wall -Wextra -Wno-unused-parameter -Wno-unused-variable -Wno-unused-result -Wno-unused-but-set-variable -Wno-pointer-arith  -std=c17 -Wpedantic -O0 -g -pthread
+#
+CFLAGS = -Wall -Wextra -Wno-unused-parameter -Wno-unused-variable -Wno-unused-result -Wno-unused-but-set-variable -Wno-pointer-arith   -Wpedantic -O0 -g -pthread
 
 TARGET_EXEC := restaurant
 TEST_TARGET := test

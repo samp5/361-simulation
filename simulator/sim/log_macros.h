@@ -19,6 +19,7 @@ extern FILE *LOG_FILE;
 #endif // !COLORS
 
 void log_init();
+extern pthread_mutex_t log_tex;
 
 #define BAIL_AND_RELEASE(msg, ...)                                             \
   do {                                                                         \
@@ -49,9 +50,11 @@ void log_init();
     if (LOG_FILE == NULL) {                                                    \
       log_init();                                                              \
     }                                                                          \
+    pthread_mutex_lock(&log_tex);                                              \
     sprintf(buf, msg, __VA_ARGS__);                                            \
     fprintf(LOG_FILE, "TID:%lu: %s\n", pthread_self(), buf);                   \
     fflush(LOG_FILE);                                                          \
+    pthread_mutex_unlock(&log_tex);                                            \
   } while (0)
 
 #endif // !LOG_MACROS

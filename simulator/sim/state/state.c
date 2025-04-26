@@ -1,8 +1,10 @@
 #include "state.h"
+#include "../log_macros.h"
+#include "sync.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-const int MAX_BORSHT_ORDER = 8;
+const int MAX_BORSHT_ORDER = 1;
 const int NUM_BORSHT_TYPE = 3;
 
 vector *init_waitstaff_states(int num_waiter, int num_tables);
@@ -17,6 +19,17 @@ kitchen init_kitchen_state(int);
 
 static void init_seating_line(state *);
 
+int state_completed(state *s) {
+  int locks = Global;
+  int done = 0;
+  take(locks);
+  if (s->num_customers_left == s->num_customers) {
+    done = 1;
+  }
+  release(locks);
+  return done;
+}
+
 state *init_state(int num_customers, int num_tables, int num_waiter,
                   int num_cooks) {
   // allocate state
@@ -24,7 +37,10 @@ state *init_state(int num_customers, int num_tables, int num_waiter,
 
   // fill in basic counter variables
   sim_state->num_customers = num_customers;
+  sim_state->num_customers_left = 0;
   sim_state->num_customers_arrived = 0;
+
+  sim_state->is_done = state_completed;
 
   // customer collection
   sim_state->customers = init_customers(num_customers);

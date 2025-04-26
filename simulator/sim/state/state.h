@@ -11,7 +11,7 @@
 
 typedef int16_t table_id;
 typedef int customer_id;
-typedef int16_t waitstaff_id;
+typedef int waitstaff_id;
 typedef int8_t borsht_type;
 typedef int customer_status;
 
@@ -66,8 +66,11 @@ typedef struct kitchen_state {
 
 typedef struct state {
   // customer state
+  int num_customers_left;
   int num_customers;
   int num_customers_arrived;
+
+  int (*is_done)(struct state *);
 
   // customer states (cmp based on id)
   vector *customers;

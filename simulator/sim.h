@@ -5,7 +5,7 @@ extern const int NUM_BORSHT_TYPE;
 typedef int16_t table_id;
 typedef int customer_id;
 typedef int8_t borsht_type;
-typedef int16_t waitstaff_id;
+typedef int waitstaff_id;
 
 /////////////////////////////////////////////////////////////////////
 //
@@ -106,7 +106,6 @@ void pick_up_borsht(waitstaff_id id, borsht_type borsht_type, int quantitiy);
 void serve(waitstaff_id waitstaff_id, table_id table_id,
            borsht_type borsht_type);
 
-// TODO:
 /*
  * Clean up table
  *
@@ -120,7 +119,6 @@ void clean_table(waitstaff_id w_id, table_id table_id);
 // Cook API
 //
 
-// TODO:
 /*
  * Prepare some borsht
  *
